@@ -4,7 +4,7 @@ Shared = {
     keepVehicleEngineOn = true, -- keep the engine on when exiting a vehicle
     steal = {
         available = true, -- allow players to carjack vehicles
-        label = 'Stealing Vehicle...',
+        label = 'Roubando...',
         minTime = 5000,
         maxTime = 7000,
         stressIncrease = math.random(1, 3),
@@ -27,12 +27,12 @@ Shared = {
         advancedBreakChance = 0.1
     },
     grab = { -- grab a dead npc out of a vehicle
-        label = 'Robbing Vehicle...',
+        label = 'Roubando veículo...',
         minTime = 5000,
         maxTime = 7000,
     },
     hotwire = { -- hotwire a vehicle
-        label = 'Hotwiring Vehicle...',
+        label = 'Fazendo ligação direta...',
         chance = 1.0,
         minTime = 2000,
         maxTime = 3000,

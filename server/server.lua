@@ -13,8 +13,8 @@ function GiveTempKeys(id, plate)
     plate = RemoveSpecialCharacter(plate)
     table.insert(VehicleList[citizenid], plate)
     local ndata = {
-        title = 'Recieved',
-        description = 'You got temporary key to the vehicle',
+        title = 'Recebido',
+        description = 'Você recebeu a chave temporária para o veículo',
         type = 'success'
     }
     TriggerClientEvent('ox_lib:notify', id, ndata)
@@ -33,8 +33,8 @@ end
 exports('GiveTempKeys', function(src, plate)
     if not plate then
         local nData = {
-            title = 'Failed',
-            description = 'No Vehicle Plate Found',
+            title = 'Falha',
+            description = 'Nenhuma placa de veículo encontrada ',
             type = 'error'
         }
         TriggerClientEvent('ox_lib:notify', src, nData)
@@ -46,8 +46,8 @@ end)
 exports('RemoveTempKeys', function(src, plate)
     if not plate then
         local nData = {
-            title = 'Failed',
-            description = 'No Vehicle Plate Found',
+            title = 'Falha',
+            description = 'Nenhuma placa de veículo encontrada',
             type = 'error'
         }
         TriggerClientEvent('ox_lib:notify', src, nData)
@@ -59,8 +59,8 @@ end)
 exports('GiveKeyItem', function(src, plate, netId)
     if not plate or not netId then
         local nData = {
-            title = 'Failed',
-            description = 'No Vehicle Data Found',
+            title = 'Falha',
+            description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         }
         TriggerClientEvent('ox_lib:notify', src, nData)
@@ -72,8 +72,8 @@ end)
 exports('RemoveKeyItem', function(src, plate)
     if not plate then
         local nData = {
-            title = 'Failed',
-            description = 'No Vehicle Data Found',
+            title = 'Falha',
+            description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         }
         TriggerClientEvent('ox_lib:notify', src, nData)
@@ -85,8 +85,8 @@ end)
 exports('HaveTemporaryKey', function(src, plate)
     if not plate then
         return lib.notify({
-            title = 'Failed',
-            description = 'No Vehicle Data Found',
+            title = 'Falha',
+            description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         })
     end
@@ -96,8 +96,8 @@ end)
 exports('HavePermanentKey', function(src, plate)
     if not plate then
         return lib.notify({
-            title = 'Failed',
-            description = 'No Vehicle Data Found',
+            title = 'Falha',
+            description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         })
     end
@@ -187,7 +187,7 @@ RegisterNetEvent('mm_carkeys:server:unstackkeys', function()
     local bag = Bridge:GetPlayerItemByName(src, 'keybag')
     if not bag then
         local ndata = {
-            description = 'You don\'t have a key bag',
+            description = 'Você não tem uma bolsa de chave',
             type = 'error'
         }
         TriggerClientEvent('ox_lib:notify', src, ndata)

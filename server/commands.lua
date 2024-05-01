@@ -12,7 +12,7 @@ lib.addCommand('givetempkeys', {
         {
             name = 'plate',
             type = 'string',
-            help = 'Vehicle plate number',
+            help = 'Número da placa do veículo',
             optional = true,
         }
     },
@@ -23,7 +23,7 @@ lib.addCommand('givetempkeys', {
         plate = lib.callback.await('mm_carkeys:client:getplate', source)
         if not plate then
             local ndata = {
-                description = 'You are not in a vehicle',
+                description = 'Você não está em um veículo',
                 type = 'error'
             }
             TriggerClientEvent('ox_lib:notify', source, ndata)
@@ -45,7 +45,7 @@ lib.addCommand('removetempkeys', {
         {
             name = 'plate',
             type = 'string',
-            help = 'Vehicle plate number',
+            help = 'Número da placa do veículo',
             optional = true,
         }
     },
@@ -56,7 +56,7 @@ lib.addCommand('removetempkeys', {
         plate = lib.callback.await('mm_carkeys:client:getplate', source)
         if not plate then
             local ndata = {
-                description = 'You are not in a vehicle',
+                description = 'Você não está em um veículo',
                 type = 'error'
             }
             TriggerClientEvent('ox_lib:notify', source, ndata)
