@@ -14,6 +14,7 @@ function VehicleKeys:Init(plate)
         return
     end
     self.hasKey =  lib.table.contains(self.playerKeys, self.currentVehiclePlate) or lib.table.contains(self.playerTempKeys, self.currentVehiclePlate)
+    self.isEngineRunning = self.hasKey and GetIsVehicleEngineRunning(self.currentVehicle) or false
     if not self.hasKey and not self.showTextUi then
         lib.showTextUI('Hotwire Vehicle', {
             position = "left-center",
