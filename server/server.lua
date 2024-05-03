@@ -34,7 +34,7 @@ exports('GiveTempKeys', function(src, plate)
     if not plate then
         local nData = {
             title = 'Falha',
-            description = 'Nenhuma placa de veículo encontrada ',
+            description = 'Nenhuma placa de veículo encontrada',
             type = 'error'
         }
         TriggerClientEvent('ox_lib:notify', src, nData)

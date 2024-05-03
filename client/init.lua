@@ -15,7 +15,7 @@ function VehicleKeys:Init(plate)
     end
     self.hasKey =  lib.table.contains(self.playerKeys, self.currentVehiclePlate) or lib.table.contains(self.playerTempKeys, self.currentVehiclePlate)
     if not self.hasKey and not self.showTextUi then
-        lib.showTextUI('Hotwire Vehicle', {
+        lib.showTextUI('Ligação direta', {
             position = "right-center",
             icon = 'h',
         })
@@ -94,7 +94,7 @@ exports('GiveTempKeys', function(plate)
     if not plate then
         return lib.notify({
             title = 'Failed',
-            description = 'No Vehicle Plate Found',
+            description = 'Nenhuma placa de veículo encontrada',
             type = 'error'
         })
     end

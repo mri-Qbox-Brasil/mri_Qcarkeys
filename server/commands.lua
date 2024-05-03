@@ -1,7 +1,7 @@
 local Bridge = require 'server.bridge'
 
 lib.addCommand('givetempkeys', {
-    help = 'Remove Temporary Keys',
+    help = 'Give Temporary Keys',
     params = {
         {
             name = 'target',

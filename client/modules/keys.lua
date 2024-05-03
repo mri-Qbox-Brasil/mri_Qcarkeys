@@ -38,14 +38,14 @@ function KeyManagement:ToggleVehicleLock(vehicle)
         TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(vehicle), 4)
         SetVehicleDoorsLockedForAllPlayers(vehicle, true)
         lib.notify({
-            description = 'Locked Vehicle',
+            description = 'Veículo trancado',
             type = 'error'
         })
     else
         TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(vehicle), 1)
         SetVehicleDoorsLockedForAllPlayers(vehicle, false)
         lib.notify({
-            description = 'Unlocked Vehicle',
+            description = 'Veículo destrancado',
             type = 'success'
         })
     end
@@ -73,7 +73,7 @@ RegisterCommand('togglelocks', function()
     end
 end, false)
 
-RegisterKeyMapping('togglelocks', 'LOCK Vehicle', 'keyboard', 'L')
+RegisterKeyMapping('togglelocks', 'Trancar/Destrancar veículo', 'keyboard', 'L')
 
 RegisterCommand('engine', function()
     if VehicleKeys.currentVehicle then
@@ -91,7 +91,7 @@ RegisterCommand('engine', function()
     end
 end, false)
 
-RegisterKeyMapping('engine', "Toggle Engine", 'keyboard', 'G')
+RegisterKeyMapping('engine', "Ligar/desligar veículo", 'keyboard', 'Z')
 
 lib.callback.register('mm_carkeys:client:getplate', function()
     if VehicleKeys.currentVehicle == 0 then return false end
@@ -169,7 +169,7 @@ RegisterNetEvent('mm_carkeys:client:givekeyitem', function()
     end
     local model = GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(VehicleKeys.currentVehicle)))
     if lib.progressBar({
-        label = 'Making Vehicle Keys...',
+        label = 'Procurando as chaves...',
         duration = 5000,
         position = 'bottom',
         useWhileDead = false,
@@ -183,7 +183,7 @@ RegisterNetEvent('mm_carkeys:client:givekeyitem', function()
         TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', VehicleKeys.currentVehiclePlate, model)
     else
         lib.notify({
-            description = 'Action cancelled',
+            description = 'Ação cancelada!',
             type = 'error'
         })
     end
@@ -192,7 +192,7 @@ end)
 RegisterNetEvent('mm_carkeys:client:removekeyitem', function()
     if VehicleKeys.currentVehicle == 0 then
         return lib.notify({
-            description = 'You are not inside any vehicle',
+            description = 'Você não está dentro de nenhum veículo',
             type = 'error'
         })
     end
@@ -201,7 +201,7 @@ end)
 
 RegisterNetEvent('mm_carkeys:client:stackkeys', function()
     if lib.progressBar({
-        label = 'Stacking Keys...',
+        label = 'Juntando as chaves...',
         duration = 5000,
         position = 'bottom',
         useWhileDead = false,
@@ -219,7 +219,7 @@ RegisterNetEvent('mm_carkeys:client:stackkeys', function()
         TriggerServerEvent('mm_carkeys:server:stackkeys')
     else
         lib.notify({
-            description = 'Action cancelled',
+            description = 'Ação cancelada',
             type = 'error'
         })
     end
@@ -227,7 +227,7 @@ end)
 
 RegisterNetEvent('mm_carkeys:client:unstackkeys', function()
     if lib.progressBar({
-        label = 'Unstacking Keys...',
+        label = 'Separando as chaves...',
         duration = 5000,
         position = 'bottom',
         useWhileDead = false,
@@ -245,7 +245,7 @@ RegisterNetEvent('mm_carkeys:client:unstackkeys', function()
         TriggerServerEvent('mm_carkeys:server:unstackkeys')
     else
         lib.notify({
-            description = 'Action cancelled',
+            description = 'Ação cancelada',
             type = 'error'
         })
     end
