@@ -24,4 +24,9 @@ function Utils:GetPedsInVehicle(vehicle)
     return otherPeds
 end
 
+function Utils:RemoveSpecialCharacter(txt)
+    if not txt then return 'undefined' end
+    return txt:gsub("%W", "")
+end
+
 return Utils
