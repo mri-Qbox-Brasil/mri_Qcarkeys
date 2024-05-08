@@ -28,7 +28,7 @@ function KeyManagement:GetKeys()
     end)
 end
 
-function KeyManagement:ToggleVehicleLock(vehicle)
+function KeyManagement:ToggleVehicleLock(vehicle, remote)
     lib.requestAnimDict("anim@mp_player_intmenu@key_fob@")
     TaskPlayAnim(cache.ped, 'anim@mp_player_intmenu@key_fob@', 'fob_click', 3.0, 3.0, -1, 49, 0, false, false, false)
     TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 5, "lock", 0.3)
@@ -49,12 +49,16 @@ function KeyManagement:ToggleVehicleLock(vehicle)
             type = 'success'
         })
     end
-    SetVehicleLights(vehicle, 2)
-    Wait(250)
-    SetVehicleLights(vehicle, 1)
-    Wait(200)
-    SetVehicleLights(vehicle, 0)
-    Wait(300)
+    
+    if remote or not Shared.toggleLightsOnlyRemote then
+        SetVehicleLights(vehicle, 2)
+        Wait(250)
+        SetVehicleLights(vehicle, 1)
+        Wait(200)
+        SetVehicleLights(vehicle, 0)
+        Wait(300)
+    end
+
     ClearPedTasks(cache.ped)
 end
 

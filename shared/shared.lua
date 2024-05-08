@@ -1,10 +1,12 @@
 Shared = {
     LockNPCVehicle = true, -- lock all npc vehicles
     playerDraggable = true, -- allow players to drag other players
+    toggleLightsOnlyRemote = true, -- true if you want the vehicle lights to toggle only when not in the vehicle
     keepVehicleEngineOn = true, -- keep the engine on when exiting a vehicle
     steal = {
         available = true, -- allow players to carjack vehicles
-        label = 'Roubando...',
+        getKey = true, -- if true you get a permanent instead of a temporary key
+        label = 'Stealing Vehicle...',
         minTime = 5000,
         maxTime = 7000,
         stressIncrease = math.random(1, 3),
