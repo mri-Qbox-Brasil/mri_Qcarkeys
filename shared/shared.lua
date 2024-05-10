@@ -35,7 +35,7 @@ Shared = {
     },
     hotwire = { -- hotwire a vehicle
         label = 'Fazendo ligação direta...',
-        chance = 1.0,
+        chance = 0.1,
         minTime = 2000,
         maxTime = 3000,
         stressIncrease = math.random(1, 3)
