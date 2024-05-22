@@ -32,7 +32,8 @@ if Shared.Framework == 'qb' then
             VehicleKeys:Init()
         end
     end)
-
+    
+    RegisterNetEvent('vehiclekeys:client:SetOwner')
     AddEventHandler('vehiclekeys:client:SetOwner', function(plate)
         if not plate then
             return lib.notify({
