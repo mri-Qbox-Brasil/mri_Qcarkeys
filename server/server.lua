@@ -138,6 +138,17 @@ RegisterNetEvent('mm_carkeys:server:acquirevehiclekeys', function(plate, model)
 	end
 end)
 
+RegisterNetEvent('qb-vehiclekeys:server:AcquireVehicleKeys', function(plate)
+    local src = source
+	local Player = Bridge:GetPlayer(src)
+    if Player then
+        local info = {}
+		info.label = 'Chaves -'..plate
+        info.plate = plate
+		Bridge:AddItem(src, 'vehiclekey', info)
+	end
+end)
+
 RegisterNetEvent('mm_carkeys:server:removevehiclekeys', function(plate)
     local src = source
     local keys = Bridge:GetPlayerItemsByName(src, 'vehiclekey')
