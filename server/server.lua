@@ -132,7 +132,7 @@ RegisterNetEvent('mm_carkeys:server:acquirevehiclekeys', function(plate, model)
 	local Player = Bridge:GetPlayer(src)
     if Player then
         local info = {}
-		info.label = model.. '-' ..plate
+		info.label = "CHAVE-" ..plate ---@old: model.. '-' ..plate
         info.plate = plate
 		Bridge:AddItem(src, 'vehiclekey', info)
 	end

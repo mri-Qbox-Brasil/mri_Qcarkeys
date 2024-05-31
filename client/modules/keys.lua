@@ -64,7 +64,7 @@ end
 
 RegisterCommand('togglelocks', function()
     if VehicleKeys.currentVehicle == 0 then
-        local vehicle = lib.getClosestVehicle(GetEntityCoords(cache.ped), 3.0, false)
+        local vehicle = lib.getClosestVehicle(GetEntityCoords(cache.ped), 5.0, false)
         if not vehicle then return end
         local plate = GetVehicleNumberPlateText(vehicle)
         if lib.table.contains(VehicleKeys.playerKeys, Utils:RemoveSpecialCharacter(plate)) or lib.table.contains(VehicleKeys.playerTempKeys, Utils:RemoveSpecialCharacter(plate)) then
