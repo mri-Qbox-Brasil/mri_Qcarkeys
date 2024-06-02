@@ -36,8 +36,8 @@ if Shared.Framework == 'qb' then
     RegisterNetEvent('vehiclekeys:client:SetOwner', function(plate)
         if not plate then
             return lib.notify({
-                title = 'Failed',
-                description = 'No Vehicle Plate Found',
+                title = 'Falhou',
+                description = 'Nenhuma placa de veículo encontrada',
                 type = 'error'
             })
         end

@@ -41,8 +41,8 @@ function LockPick:LockPickDoor(isAdvanced)
     SetVehicleAlarm(vehicle, true)
     SetVehicleAlarmTimeLeft(vehicle, 60000)
     lib.notify({
-        title = 'Failed',
-        description = 'Failed to lockpick the door!',
+        title = 'Falhou',
+        description = 'Falhou em destrancar a porta!',
         type = 'error'
     })
 end
@@ -67,7 +67,7 @@ function LockPick:LockPickEngine(isAdvanced)
     SetVehicleAlarm(VehicleKeys.currentVehicle, true)
     SetVehicleAlarmTimeLeft(VehicleKeys.currentVehicle, 60000)
     lib.notify({
-        title = 'Failed',
+        title = 'Falhou',
         description = 'Failed to lockpick the ignition!',
         type = 'error'
     })

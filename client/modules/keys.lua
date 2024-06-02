@@ -132,8 +132,8 @@ RegisterNetEvent('mm_carkeys:client:removetempkeys', function(plate)
             SetVehicleEngineOn(VehicleKeys.currentVehicle, false, false, true)
             VehicleKeys.isEngineRunning = false
             if not VehicleKeys.showTextUi then
-                lib.showTextUI('Hotwire Vehicle', {
-                    position = "left-center",
+                lib.showTextUI('Ligação direta', {
+                    position = "right-center",
                     icon = 'h',
                 })
                 VehicleKeys.showTextUi = true
@@ -146,7 +146,7 @@ RegisterNetEvent('mm_carkeys:client:setplayerkey', function(plate, netId)
     local vehicle = netId
     if not plate or not netId then
         return lib.notify({
-            description = 'No Vehicle Data Found',
+            description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         })
     end
@@ -157,7 +157,7 @@ end)
 RegisterNetEvent('mm_carkeys:client:removeplayerkey', function(plate)
     if not plate then
         return lib.notify({
-            description = 'No Vehicle Plate Found',
+            description = 'Nenhuma placa de veículo encontrada',
             type = 'error'
         })
     end

@@ -77,7 +77,7 @@ lib.addCommand('givekeys', {
         return
     end
     local ndata = {
-		title = 'Failed',
+		title = 'Falhou',
     	description = 'Not Verified',
     	type = 'error'
 	}
@@ -95,7 +95,7 @@ lib.addCommand('removekeys', {
         return
     end
     local ndata = {
-		title = 'Failed',
+		title = 'Falhou',
     	description = 'Not Verified',
     	type = 'error'
 	}

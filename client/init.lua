@@ -94,7 +94,7 @@ end
 exports('GiveTempKeys', function(plate)
     if not plate then
         return lib.notify({
-            title = 'Failed',
+            title = 'Falhou',
             description = 'Nenhuma placa de veículo encontrada',
             type = 'error'
         })
@@ -105,8 +105,8 @@ end)
 exports('RemoveTempKeys', function(plate)
     if not plate then
         return lib.notify({
-            title = 'Failed',
-            description = 'No Vehicle Plate Found',
+            title = 'Falhou',
+            description = 'Nenhuma placa de veículo encontrada',
             type = 'error'
         })
     end
@@ -116,8 +116,8 @@ end)
 exports('GiveKeyItem', function(plate, vehicle)
     if not plate or not vehicle then
         return lib.notify({
-            title = 'Failed',
-            description = 'No Vehicle Data Found',
+            title = 'Falhou',
+            description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         })
     end
@@ -128,8 +128,8 @@ end)
 exports('RemoveKeyItem', function(plate)
     if not plate then
         return lib.notify({
-            title = 'Failed',
-            description = 'No Vehicle Data Found',
+            title = 'Falhou',
+            description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         })
     end
@@ -139,8 +139,8 @@ end)
 exports('HaveTemporaryKey', function(plate)
     if not plate then
         return lib.notify({
-            title = 'Failed',
-            description = 'No Vehicle Data Found',
+            title = 'Falhou',
+            description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         })
     end
@@ -150,8 +150,8 @@ end)
 exports('HavePermanentKey', function(plate)
     if not plate then
         return lib.notify({
-            title = 'Failed',
-            description = 'No Vehicle Data Found',
+            title = 'Falhou',
+            description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         })
     end

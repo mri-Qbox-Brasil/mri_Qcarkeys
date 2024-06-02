@@ -31,7 +31,16 @@ function Hotwire:HotwireHandler()
         }
     }) then
         TriggerServerEvent('hud:server:GainStress', Shared.hotwire.stressIncrease)
-        if (math.random() <= Shared.hotwire.chance) then
+        local level = exports["cw-rep"]:getCurrentLevel("hotwiring")
+        if level > 8 then
+            level = 8
+        end
+
+        if level ==  0 then
+            level = 1
+        end
+        if (math.random() <= Shared.hotwire.chance * level) then
+            exports["cw-rep"]:updateSkill("hotwiring", 1)
             TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', VehicleKeys.currentVehiclePlate)
             SetVehicleEngineOn(VehicleKeys.currentVehicle, true, false, true)
             VehicleKeys.isEngineRunning = true
@@ -39,21 +48,39 @@ function Hotwire:HotwireHandler()
             self.isHotwiring = false
             return
         end
+
+        local description
+        if level <= 1 then
+            description = 'Isso parece impossível para você!'
+        elseif level <= 2 then
+            description = 'Isso parece muito complicado para você!'
+        elseif level <= 3 then
+            description = 'Isso parece complicado pra você!'
+        elseif level <= 4 then
+            description = 'Isso parece difícil pra você!'
+        elseif level <= 5 then
+            description = 'Isso parece normal para você!'
+        elseif level <= 8 then
+            description = 'Erros? Mas você não erra...'
+        else
+            description = 'Você é tão experiente, como errou?'
+        end
+        
         lib.notify({
-            title = 'Failed',
-            description = 'Aah it seems too hard!',
+            title = 'Falhou',
+            description = description,
             type = 'error'
         })
     else
         lib.notify({
-            title = 'Failed',
-            description = 'Cancelled hotwiring!',
+            title = 'Falhou',
+            description = 'Ligação direta falhou!',
             type = 'error'
         })
     end
     if VehicleKeys.currentVehicle and VehicleKeys.isInDrivingSeat and not success and not VehicleKeys.showTextUi then
-        lib.showTextUI('Hotwire Vehicle', {
-            position = "left-center",
+        lib.showTextUI('Ligação direta', {
+            position = "right-center",
             icon = 'h',
         })
         VehicleKeys.showTextUi = true

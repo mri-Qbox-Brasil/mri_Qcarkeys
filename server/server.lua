@@ -214,4 +214,4 @@ RegisterNetEvent('mm_carkeys:server:unstackkeys', function()
     end
 end)
 
-lib.versionCheck('SOH69/mm_carkeys')
+-- lib.versionCheck('SOH69/mm_carkeys')
