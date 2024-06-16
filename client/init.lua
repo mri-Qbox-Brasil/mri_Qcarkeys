@@ -114,15 +114,16 @@ exports('RemoveTempKeys', function(plate)
 end)
 
 exports('GiveKeyItem', function(plate, vehicle)
-    if not plate or not vehicle then
+    --- @old if not plate or not vehicle then
+    if not plate then
         return lib.notify({
             title = 'Falhou',
             description = 'Nenhum dado de veículo encontrado',
             type = 'error'
         })
     end
-    local model = GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)))
-    TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', plate, model)
+    --- @old local model = GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)))
+    TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', plate)
 end)
 
 exports('RemoveKeyItem', function(plate)
