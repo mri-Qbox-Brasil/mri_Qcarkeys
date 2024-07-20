@@ -5,6 +5,10 @@ local Hotwire = {
 }
 
 function Hotwire:HotwireHandler()
+    local enginewire = nil
+    if GetResourceState('rep-enginewire') == 'started' then
+        enginewire = exports["rep-enginewire"]:MiniGame()
+    end
     if self.isHotwiring then return end
     self.isHotwiring = true
     local hotwireTime = math.random(Shared.hotwire.minTime, Shared.hotwire.maxTime)
@@ -13,6 +17,8 @@ function Hotwire:HotwireHandler()
     SetVehicleAlarmTimeLeft(VehicleKeys.currentVehicle, hotwireTime)
     lib.hideTextUI()
     VehicleKeys.showTextUi = false
+    print(enginewire)
+
     if lib.progressBar({
         label = Shared.hotwire.label,
         duration = hotwireTime,
@@ -29,7 +35,7 @@ function Hotwire:HotwireHandler()
             dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@',
             clip = 'machinic_loop_mechandplayer'
         }
-    }) then
+    }) and (enginewire == nil and true or enginewire) then
         TriggerServerEvent('hud:server:GainStress', Shared.hotwire.stressIncrease)
         local level = exports["cw-rep"]:getCurrentLevel("hotwiring")
         if level > 8 then
@@ -39,6 +45,7 @@ function Hotwire:HotwireHandler()
         if level ==  0 then
             level = 1
         end
+
         if (math.random() <= Shared.hotwire.chance * level) then
             exports["cw-rep"]:updateSkill("hotwiring", 1)
             TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', VehicleKeys.currentVehiclePlate)
