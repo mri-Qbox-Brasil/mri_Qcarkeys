@@ -29,8 +29,23 @@ function KeyManagement:GetKeys()
 end
 
 function KeyManagement:ToggleVehicleLock(vehicle, remote)
-    lib.requestAnimDict("anim@mp_player_intmenu@key_fob@")
+    local hash = joaat('p_car_keys_01')
+    local animDict = 'anim@mp_player_intmenu@key_fob@'
+
+    lib.requestAnimDict(animDict)
+    lib.requestModel(hash)
+
+    local keyProp = CreateObject(hash, GetEntityCoords(cache.ped), false, false, false)
     TaskPlayAnim(cache.ped, 'anim@mp_player_intmenu@key_fob@', 'fob_click', 3.0, 3.0, -1, 49, 0, false, false, false)
+    SetEntityCollision(keyProp, false, false)
+    AttachEntityToEntity(keyProp, cache.ped, GetPedBoneIndex(cache.ped, 57005), 0.10, 0.02, 0, 48.10, 23.14, 24.14, true, true, false, true, 1, true)
+    SetModelAsNoLongerNeeded(keyProp)
+    SetTimeout(1500, function()
+        ClearPedTasks(cache.ped)
+        DeleteEntity(keyProp)
+        RemoveAnimDict(animDict)
+    end)
+
     TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 5, "lock", 0.3)
     NetworkRequestControlOfEntity(vehicle)
     local vehLockStatus = GetVehicleDoorLockStatus(vehicle)
@@ -58,8 +73,6 @@ function KeyManagement:ToggleVehicleLock(vehicle, remote)
         SetVehicleLights(vehicle, 0)
         Wait(300)
     end
-
-    ClearPedTasks(cache.ped)
 end
 
 RegisterCommand('togglelocks', function()
@@ -79,7 +92,7 @@ end, false)
 
 RegisterKeyMapping('togglelocks', 'Trancar/Destrancar veículo', 'keyboard', 'L')
 
-RegisterCommand('engine', function()
+RegisterCommand('mri:engine', function()
     if VehicleKeys.currentVehicle then
         local EngineOn = GetIsVehicleEngineRunning(VehicleKeys.currentVehicle)
         if EngineOn then
@@ -95,7 +108,7 @@ RegisterCommand('engine', function()
     end
 end, false)
 
-RegisterKeyMapping('engine', "Ligar/desligar veículo", 'keyboard', 'Z')
+RegisterKeyMapping('mri:engine', "Ligar/desligar veículo", 'keyboard', 'Z')
 
 lib.callback.register('mm_carkeys:client:getplate', function()
     if VehicleKeys.currentVehicle == 0 then return false end
