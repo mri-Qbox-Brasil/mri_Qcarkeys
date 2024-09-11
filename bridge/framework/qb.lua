@@ -33,7 +33,7 @@ if Shared.Framework == 'qb' then
         end
     end)
 
-    RegisterNetEvent('vehiclekeys:client:SetOwner', function(plate)
+    RegisterNetEvent('vehiclekeys:client:SetOwner', function(plate, isBuying)
         if not plate then
             return lib.notify({
                 title = 'Falhou',
@@ -41,7 +41,11 @@ if Shared.Framework == 'qb' then
                 type = 'error'
             })
         end
-        TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', plate)
+        if isBuying then
+            TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', plate)
+        else
+            TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', plate)
+        end
     end)
 
     if Shared.Inventory == 'qb' then
