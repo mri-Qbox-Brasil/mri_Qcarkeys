@@ -113,7 +113,7 @@ exports('RemoveTempKeys', function(plate)
     TriggerServerEvent('mm_carkeys:server:removetempvehiclekeys', plate)
 end)
 
-exports('GiveKeyItem', function(plate, vehicle)
+exports('GiveKeyItem', function(plate)
     --- @old if not plate or not vehicle then
     if not plate then
         return lib.notify({
