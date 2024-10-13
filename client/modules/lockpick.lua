@@ -31,6 +31,11 @@ function LockPick:LockPickDoor(isAdvanced)
     StopAnimTask(cache.ped, "anim@amb@clubhouse@tutorial@bkr_tut_ig3@", "machinic_loop_mechandplayer", 1.0)
     if result then
         TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(vehicle), 1)
+        SetVehicleDoorsLockedForAllPlayers(vehicle, false)
+        lib.notify({
+            description = 'Veículo destrancado',
+            type = 'success'
+        })
         SetVehicleLights(vehicle, 2)
         Wait(250)
         SetVehicleLights(vehicle, 1)
