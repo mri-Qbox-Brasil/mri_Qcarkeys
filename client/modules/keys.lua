@@ -92,15 +92,43 @@ end, false)
 
 RegisterKeyMapping('togglelocks', 'Trancar/Destrancar veículo', 'keyboard', 'L')
 
+if Shared.keepKeysInVehicle then
+    CreateThread(function()
+        local delay
+        while true do
+            delay = 1000
+            if VehicleKeys.currentVehicle and cache.vehicle then
+                if not Entity(VehicleKeys.currentVehicle).state['keysIn'] then
+                    SetVehicleEngineOn(VehicleKeys.currentVehicle, false, false, true)
+                    VehicleKeys.isEngineRunning = false
+                    delay = 5
+                end
+            end
+            Citizen.Wait(delay)
+        end
+    end)
+end
+
 RegisterCommand('mri:engine', function()
     if VehicleKeys.currentVehicle then
         local EngineOn = GetIsVehicleEngineRunning(VehicleKeys.currentVehicle)
         if EngineOn then
             SetVehicleEngineOn(VehicleKeys.currentVehicle, false, false, true)
             VehicleKeys.isEngineRunning = false
+            if Shared.keepKeysInVehicle then
+                Entity(VehicleKeys.currentVehicle).state['keysIn'] = false
+                TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', VehicleKeys.currentVehiclePlate)
+                Wait(1000)
+                TriggerEvent('mm_carkeys:client:removetempkeys', VehicleKeys.currentVehiclePlate)
+            end
             return
         end
         if VehicleKeys.hasKey then
+            if Shared.keepKeysInVehicle then
+                Entity(VehicleKeys.currentVehicle).state['keysIn'] = true
+                TriggerEvent('mm_carkeys:client:removekeyitem')
+                TriggerEvent('mm_carkeys:client:addtempkeys', VehicleKeys.currentVehiclePlate)
+            end
             SetVehicleEngineOn(VehicleKeys.currentVehicle, true, true, true)
             VehicleKeys.isEngineRunning = true
             return
@@ -144,13 +172,7 @@ RegisterNetEvent('mm_carkeys:client:removetempkeys', function(plate)
             VehicleKeys.hasKey = false
             SetVehicleEngineOn(VehicleKeys.currentVehicle, false, false, true)
             VehicleKeys.isEngineRunning = false
-            if not VehicleKeys.showTextUi then
-                lib.showTextUI('Ligação direta', {
-                    position = "right-center",
-                    icon = 'h',
-                })
-                VehicleKeys.showTextUi = true
-            end
+            VehicleKeys:Init(plate)
         end
     end
 end)
@@ -197,7 +219,7 @@ RegisterNetEvent('mm_carkeys:client:givekeyitem', function()
             combat = true
         }
     }) then
-        TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', VehicleKeys.currentVehiclePlate, model)
+        TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', VehicleKeys.currentVehiclePlate)
     else
         lib.notify({
             description = 'Ação cancelada!',

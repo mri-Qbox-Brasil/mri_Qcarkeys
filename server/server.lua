@@ -127,7 +127,7 @@ RegisterNetEvent('mm_carkeys:server:removelockpick', function(item)
     Bridge:RemoveItem(source, item)
 end)
 
-RegisterNetEvent('mm_carkeys:server:acquirevehiclekeys', function(plate, model)
+RegisterNetEvent('mm_carkeys:server:acquirevehiclekeys', function(plate)
     local src = source
 	local Player = Bridge:GetPlayer(src)
     if Player then
