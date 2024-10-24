@@ -150,11 +150,7 @@ end)
 
 exports('HavePermanentKey', function(plate)
     if not plate then
-        return lib.notify({
-            title = 'Falhou',
-            description = 'Nenhum dado de veículo encontrado',
-            type = 'error'
-        })
+        return
     end
     return lib.table.contains(VehicleKeys.playerKeys, Utils:RemoveSpecialCharacter(plate))
 end)

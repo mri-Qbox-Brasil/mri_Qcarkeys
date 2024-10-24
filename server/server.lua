@@ -95,11 +95,7 @@ end)
 
 exports('HavePermanentKey', function(src, plate)
     if not plate then
-        return lib.notify({
-            title = 'Falha',
-            description = 'Nenhum dado de veículo encontrado',
-            type = 'error'
-        })
+        return
     end
     return lib.callback.await('mm_carkeys:client:havekey', src, 'perma', plate)
 end)

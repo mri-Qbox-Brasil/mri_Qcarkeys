@@ -98,7 +98,8 @@ if Shared.keepKeysInVehicle then
         while true do
             delay = 1000
             if VehicleKeys.currentVehicle and cache.vehicle then
-                if not Entity(VehicleKeys.currentVehicle).state['keysIn'] then
+                local keysInVehicle = Entity(VehicleKeys.currentVehicle).state['keysIn']
+                if not keysInVehicle then
                     SetVehicleEngineOn(VehicleKeys.currentVehicle, false, false, true)
                     VehicleKeys.isEngineRunning = false
                     delay = 5
@@ -112,26 +113,25 @@ end
 RegisterCommand('mri:engine', function()
     if VehicleKeys.currentVehicle then
         local EngineOn = GetIsVehicleEngineRunning(VehicleKeys.currentVehicle)
+        local vehiclePlate = VehicleKeys.currentVehiclePlate
         if EngineOn then
             SetVehicleEngineOn(VehicleKeys.currentVehicle, false, false, true)
             VehicleKeys.isEngineRunning = false
             if Shared.keepKeysInVehicle then
-                Entity(VehicleKeys.currentVehicle).state['keysIn'] = false
-                TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', VehicleKeys.currentVehiclePlate)
-                Wait(1000)
-                TriggerEvent('mm_carkeys:client:removetempkeys', VehicleKeys.currentVehiclePlate)
+                Entity(VehicleKeys.currentVehicle).state:set('keysIn', false, true) -- Sincroniza o estado no servidor
+                TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', vehiclePlate)
+                TriggerEvent('mm_carkeys:client:removetempkeys', vehiclePlate)
             end
             return
         end
-        if VehicleKeys.hasKey then
-            if Shared.keepKeysInVehicle then
-                Entity(VehicleKeys.currentVehicle).state['keysIn'] = true
-                TriggerEvent('mm_carkeys:client:removekeyitem')
-                TriggerEvent('mm_carkeys:client:addtempkeys', VehicleKeys.currentVehiclePlate)
-            end
+        if (not Shared.keepKeysInVehicle and VehicleKeys.hasKey) or (Entity(VehicleKeys.currentVehicle).state['keysIn'] or exports.mri_Qcarkeys:HavePermanentKey(vehiclePlate)) then
             SetVehicleEngineOn(VehicleKeys.currentVehicle, true, true, true)
             VehicleKeys.isEngineRunning = true
-            return
+            if Shared.keepKeysInVehicle then
+                Entity(VehicleKeys.currentVehicle).state:set('keysIn', true, true)
+                TriggerEvent('mm_carkeys:client:removekeyitem')
+                TriggerEvent('mm_carkeys:client:addtempkeys', vehiclePlate)
+            end
         end
     end
 end, false)
