@@ -11,6 +11,13 @@ function GiveTempKeys(id, plate)
     local citizenid = Bridge:GetPlayerCitizenId(id)
     if not VehicleList[citizenid] then VehicleList[citizenid] = {} end
     plate = RemoveSpecialCharacter(plate)
+    if Shared.keepKeysInVehicle then
+        local info = {}
+		info.label = "CHAVE-"..plate
+        info.plate = plate
+		Bridge:AddItem(id, 'vehiclekey', info)
+    end
+
     table.insert(VehicleList[citizenid], plate)
     local ndata = {
         title = 'Recebido',
@@ -127,6 +134,7 @@ RegisterNetEvent('mm_carkeys:server:acquirevehiclekeys', function(plate)
     local src = source
 	local Player = Bridge:GetPlayer(src)
     if Player then
+
         local info = {}
 		info.label = "CHAVE-" ..plate ---@old: model.. '-' ..plate
         info.plate = plate
