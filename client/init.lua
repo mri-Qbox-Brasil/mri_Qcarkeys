@@ -81,7 +81,7 @@ function VehicleKeys:Thread()
                         TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(entering), 2)
                         TaskSmartFleePed(driver, cache.ped, -1, -1, false, false)
                     end
-                    if IsEntityDead(driver) then
+                    if Shared.grab.alive or IsEntityDead(driver) then
                         Steal:GrabKey(entering)
                     end
                 end

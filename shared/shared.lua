@@ -1,5 +1,5 @@
 Shared = {
-    LockNPCVehicle = true, -- lock all npc vehicles
+    LockNPCVehicle = false, -- lock all npc vehicles
     playerDraggable = true, -- allow players to drag other players
     toggleLightsOnlyRemote = true, -- true if you want the vehicle lights to toggle only when not in the vehicle
     keepVehicleEngineOn = true, -- keep the engine on when exiting a vehicle
@@ -30,6 +30,7 @@ Shared = {
         advancedBreakChance = 0.1
     },
     grab = { -- grab a dead npc out of a vehicle
+        alive = true,
         label = 'Roubando veículo...',
         minTime = 5000,
         maxTime = 7000,
