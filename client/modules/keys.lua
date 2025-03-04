@@ -188,10 +188,7 @@ end)
 RegisterNetEvent('mm_carkeys:client:setplayerkey', function(plate, netId)
     local vehicle = netId
     if not plate or not netId then
-        return lib.notify({
-            description = 'Nenhum dado de veículo encontrado',
-            type = 'error'
-        })
+        return 
     end
     local model = GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)))
     TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', plate, model)

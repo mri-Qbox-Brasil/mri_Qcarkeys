@@ -13,6 +13,8 @@ function VehicleKeys:Init(plate)
         end
         return
     end
+    if Entity(VehicleKeys.currentVehicle) and Entity(VehicleKeys.currentVehicle).state.isVehicleShopEntity then return end
+
     self.hasKey =  lib.table.contains(self.playerKeys, self.currentVehiclePlate) or lib.table.contains(self.playerTempKeys, self.currentVehiclePlate)
     self.isEngineRunning = self.hasKey and GetIsVehicleEngineRunning(self.currentVehicle) or false
     if not self.hasKey and not self.showTextUi then
@@ -116,11 +118,7 @@ end)
 exports('GiveKeyItem', function(plate)
     --- @old if not plate or not vehicle then
     if not plate then
-        return lib.notify({
-            title = 'Falhou',
-            description = 'Nenhum dado de veículo encontrado',
-            type = 'error'
-        })
+        return 
     end
     --- @old local model = GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)))
     TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', plate)
@@ -128,22 +126,14 @@ end)
 
 exports('RemoveKeyItem', function(plate)
     if not plate then
-        return lib.notify({
-            title = 'Falhou',
-            description = 'Nenhum dado de veículo encontrado',
-            type = 'error'
-        })
+        return 
     end
     TriggerServerEvent('mm_carkeys:server:removevehiclekeys', plate)
 end)
 
 exports('HaveTemporaryKey', function(plate)
     if not plate then
-        return lib.notify({
-            title = 'Falhou',
-            description = 'Nenhum dado de veículo encontrado',
-            type = 'error'
-        })
+        return 
     end
     return VehicleKeys.playerTempKeys[plate] ~= nil
 end)
