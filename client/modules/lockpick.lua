@@ -73,7 +73,7 @@ function LockPick:LockPickEngine(isAdvanced)
     SetVehicleAlarmTimeLeft(VehicleKeys.currentVehicle, 60000)
     lib.notify({
         title = 'Falhou',
-        description = 'Failed to lockpick the ignition!',
+        description = 'Você não conseguiu dessa vez!',
         type = 'error'
     })
 end

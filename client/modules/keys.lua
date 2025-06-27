@@ -48,6 +48,7 @@ function KeyManagement:ToggleVehicleLock(vehicle, remote)
 
     TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 5, "lock", 0.3)
     NetworkRequestControlOfEntity(vehicle)
+    while not NetworkHasControlOfEntity(vehicle) do Wait(0) end
     local vehLockStatus = GetVehicleDoorLockStatus(vehicle)
     if vehLockStatus == 1 then
         TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(vehicle), 4)
@@ -58,7 +59,10 @@ function KeyManagement:ToggleVehicleLock(vehicle, remote)
         })
     else
         TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(vehicle), 1)
+
+        SetVehicleDoorsLocked(vehicle, 1)
         SetVehicleDoorsLockedForAllPlayers(vehicle, false)
+        
         lib.notify({
             description = 'Veículo destrancado',
             type = 'success'
@@ -133,7 +137,7 @@ RegisterCommand('mri:engine', function()
         return
     end
     if (not Shared.keepKeysInVehicle and VehicleKeys.hasKey) or (Entity(VehicleKeys.currentVehicle).state['keysIn'] or exports.mri_Qcarkeys:HavePermanentKey(vehiclePlate)) then
-        SetVehicleEngineOn(VehicleKeys.currentVehicle, true, true, true)
+        SetVehicleEngineOn(VehicleKeys.currentVehicle, true, false, true)
         VehicleKeys.isEngineRunning = true
         if Shared.keepKeysInVehicle then
             Entity(VehicleKeys.currentVehicle).state:set('keysIn', true, true)
@@ -170,6 +174,12 @@ RegisterNetEvent('mm_carkeys:client:addtempkeys', function(plate)
             VehicleKeys.isEngineRunning = true
         end
     end
+end)
+
+-- TriggerEvent('qb-vehiclekeys:client:AddKeys', plate)
+-- @compat
+RegisterNetEvent('qb-vehiclekeys:client:AddKeys', function(plate)
+    exports.mri_Qcarkeys:GiveTempKeys(plate)
 end)
 
 RegisterNetEvent('mm_carkeys:client:removetempkeys', function(plate)
