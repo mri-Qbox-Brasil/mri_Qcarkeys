@@ -59,10 +59,8 @@ function KeyManagement:ToggleVehicleLock(vehicle, remote)
         })
     else
         TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(vehicle), 1)
-
         SetVehicleDoorsLocked(vehicle, 1)
         SetVehicleDoorsLockedForAllPlayers(vehicle, false)
-        
         lib.notify({
             description = 'Veículo destrancado',
             type = 'success'

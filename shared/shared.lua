@@ -29,6 +29,13 @@ Shared = {
         breakChance = 0.5,
         advancedBreakChance = 0.1
     },
+    blacklistedClasses = {
+        [13] = true, -- Bicicletas
+        [14] = true, -- Barcos
+        [15] = true, -- Helicópteros
+        [16] = true, -- Aviões
+        [21] = true, -- Trens
+    },
     grab = { -- grab a dead npc out of a vehicle
         alive = true,
         label = 'Roubando veículo...',

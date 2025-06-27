@@ -54,10 +54,21 @@ end
 
 function LockPick:LockPickEngine(isAdvanced)
     if VehicleKeys.currentVehicle == 0 or GetIsVehicleEngineRunning(VehicleKeys.currentVehicle) then return end
+
+    local vehClass = GetVehicleClass(VehicleKeys.currentVehicle)
+    if Shared.blacklistedClasses[vehClass] then
+        lib.notify({
+            description = 'Esse veículo não pode ser ligado com lockpick.',
+            type = 'error'
+        })
+        return
+    end
+
     if self.lockpicking then return end
     self.lockpicking = true
     lib.requestAnimDict("anim@amb@clubhouse@tutorial@bkr_tut_ig3@")
     TaskPlayAnim(cache.ped, 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@', 'machinic_loop_mechandplayer', 3.0, 3.0, -1, 49, 0, false, false, false)
+
     local result = self:Minigame()
     TriggerServerEvent('hud:server:GainStress', Shared.lockpick.stressIncrease)
     self:BreakLockPick(isAdvanced)
@@ -72,8 +83,7 @@ function LockPick:LockPickEngine(isAdvanced)
     SetVehicleAlarm(VehicleKeys.currentVehicle, true)
     SetVehicleAlarmTimeLeft(VehicleKeys.currentVehicle, 60000)
     lib.notify({
-        title = 'Falhou',
-        description = 'Você não conseguiu dessa vez!',
+        description = 'Falhou em ligar a ignição!',
         type = 'error'
     })
 end

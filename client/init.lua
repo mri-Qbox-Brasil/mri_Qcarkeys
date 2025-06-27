@@ -15,7 +15,9 @@ function VehicleKeys:Init(plate)
     end
     if Entity(VehicleKeys.currentVehicle) and Entity(VehicleKeys.currentVehicle).state.isVehicleShopEntity then return end
 
-    self.hasKey =  lib.table.contains(self.playerKeys, self.currentVehiclePlate) or lib.table.contains(self.playerTempKeys, self.currentVehiclePlate)
+    local vehClass = GetVehicleClass(self.currentVehicle)
+    if Shared.blacklistedClasses[vehClass] then return end
+    self.hasKey = lib.table.contains(self.playerKeys, self.currentVehiclePlate) or lib.table.contains(self.playerTempKeys, self.currentVehiclePlate)
     self.isEngineRunning = self.hasKey and GetIsVehicleEngineRunning(self.currentVehicle) or false
     if not self.hasKey and not self.showTextUi then
         lib.showTextUI('Ligação direta', {
