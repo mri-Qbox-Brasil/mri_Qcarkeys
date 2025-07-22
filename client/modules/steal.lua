@@ -91,13 +91,12 @@ function Steal:CarjackVehicle(target)
 
         local plate = GetVehicleNumberPlateText(vehicle)
         local modelName = GetDisplayNameFromVehicleModel(GetEntityModel(vehicle))
-        if Shared.steal.getKey then
+        if Shared.steal.getKey == "permanent" then
             TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', plate, modelName)
-        else
+        elseif Shared.steal.getKey == "temporary" then
             TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', plate)
         end
-        
-        
+
     else
         StopAnimTask(target, "missminuteman_1ig_2", "handsup_base", 1.0)
         self.isCarjacking = false
@@ -121,7 +120,9 @@ function Steal:GrabKey(vehicle)
         useWhileDead = false,
         canCancel = true
     }) then
-        TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', GetVehicleNumberPlateText(vehicle))
+        if Shared.grab.leaveKeysOnVehicle then
+            TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', GetVehicleNumberPlateText(vehicle))
+        end
     else
         lib.notify({
             title = 'Falhou',

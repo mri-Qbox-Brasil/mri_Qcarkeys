@@ -6,8 +6,8 @@ Shared = {
     keepKeysInVehicle = true, -- keep keys in vehicle
     steal = {
         available = true, -- allow players to carjack vehicles
-        getKey = true, -- if true you get a permanent instead of a temporary key
-        label = 'Assaltando...',
+        getKey = "permanent", -- "temporary", "permanent", "none"
+        label = "Assaltando...",
         minTime = 5000,
         maxTime = 7000,
         stressIncrease = math.random(1, 3),
@@ -36,11 +36,13 @@ Shared = {
         [16] = true, -- Aviões
         [21] = true, -- Trens
     },
-    grab = { -- grab a dead npc out of a vehicle
+    grab = {
+        -- grab a dead npc out of a vehicle
         alive = true,
-        label = 'Roubando veículo...',
+        leaveKeysOnVehicle = true, -- leave keys on vehicle
+        label = "Roubando veículo...",
         minTime = 5000,
-        maxTime = 7000,
+        maxTime = 7000
     },
     hotwire = {
         -- hotwire a vehicle
