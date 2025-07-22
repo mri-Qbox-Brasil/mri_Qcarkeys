@@ -46,6 +46,7 @@ function LockPick:LockPickDoor(isAdvanced)
             description = 'Veículo destrancado',
             type = 'success'
         })
+        exports["cw-rep"]:updateSkill("lockpicking", 1)
         SetVehicleLights(vehicle, 2)
         Wait(250)
         SetVehicleLights(vehicle, 1)
