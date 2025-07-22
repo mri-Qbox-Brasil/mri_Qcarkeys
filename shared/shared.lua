@@ -25,6 +25,7 @@ Shared = {
         }
     },
     lockpick = {
+        minigameScript = "ox_lib", -- "ox_lib", "inside-lockpicking"
         stressIncrease = math.random(1, 3),
         breakChance = 0.5,
         advancedBreakChance = 0.1

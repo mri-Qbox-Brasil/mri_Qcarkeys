@@ -5,7 +5,17 @@ local LockPick = {
 }
 
 function LockPick:Minigame()
-    return lib.skillCheck('easy')
+    if Shared.lockpick.minigameScript == "inside-lockpicking" then
+        local result = exports['inside-lockpicking']:StartLockPicking(
+            {
+                difficulty = 'easy', -- easy, medium, hard
+                requiredAmount = 2
+            }
+        )
+        return result == "success"
+    else
+        return lib.skillCheck('easy')
+    end
 end
 
 function LockPick:BreakLockPick(isAdvanced)
@@ -68,7 +78,6 @@ function LockPick:LockPickEngine(isAdvanced)
     self.lockpicking = true
     lib.requestAnimDict("anim@amb@clubhouse@tutorial@bkr_tut_ig3@")
     TaskPlayAnim(cache.ped, 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@', 'machinic_loop_mechandplayer', 3.0, 3.0, -1, 49, 0, false, false, false)
-
     local result = self:Minigame()
     TriggerServerEvent('hud:server:GainStress', Shared.lockpick.stressIncrease)
     self:BreakLockPick(isAdvanced)
