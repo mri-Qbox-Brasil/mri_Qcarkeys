@@ -59,14 +59,13 @@ function KeyManagement:ToggleVehicleLock(vehicle, remote)
         })
     else
         TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(vehicle), 1)
-        SetVehicleDoorsLocked(vehicle, 1)
         SetVehicleDoorsLockedForAllPlayers(vehicle, false)
         lib.notify({
             description = 'Veículo destrancado',
             type = 'success'
         })
     end
-    
+
     if remote or not Shared.toggleLightsOnlyRemote then
         SetVehicleLights(vehicle, 2)
         Wait(250)
@@ -115,7 +114,7 @@ end
 RegisterCommand('mri:engine', function()
     if not VehicleKeys.currentVehicle then return end
 
-    local playerPed = cache.ped 
+    local playerPed = cache.ped
     local seatIndex = GetPedInVehicleSeat(VehicleKeys.currentVehicle, -1)
 
     if seatIndex ~= playerPed then
@@ -196,7 +195,7 @@ end)
 RegisterNetEvent('mm_carkeys:client:setplayerkey', function(plate, netId)
     local vehicle = netId
     if not plate or not netId then
-        return 
+        return
     end
     local model = GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)))
     TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', plate, model)

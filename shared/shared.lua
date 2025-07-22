@@ -12,16 +12,16 @@ Shared = {
         maxTime = 7000,
         stressIncrease = math.random(1, 3),
         chance = {
-            ['2685387236'] = 0.0, -- melee
-            ['416676503'] = 0.5, -- handguns
-            ['-957766203'] = 0.75, -- SMG
-            ['860033945'] = 0.90, -- shotgun
-            ['970310034'] = 0.90, -- assault
-            ['1159398588'] = 0.99, -- LMG
-            ['3082541095'] = 0.99, -- sniper
-            ['2725924767'] = 0.99, -- heavy
-            ['1548507267'] = 0.0, -- throwable
-            ['4257178988'] = 0.0, -- misc
+            ["2685387236"] = 0.0, -- melee
+            ["416676503"] = 0.5, -- handguns
+            ["-957766203"] = 0.75, -- SMG
+            ["860033945"] = 0.90, -- shotgun
+            ["970310034"] = 0.90, -- assault
+            ["1159398588"] = 0.99, -- LMG
+            ["3082541095"] = 0.99, -- sniper
+            ["2725924767"] = 0.99, -- heavy
+            ["1548507267"] = 0.0, -- throwable
+            ["4257178988"] = 0.0 -- misc
         }
     },
     lockpick = {
@@ -35,7 +35,7 @@ Shared = {
         [14] = true, -- Barcos
         [15] = true, -- Helicópteros
         [16] = true, -- Aviões
-        [21] = true, -- Trens
+        [21] = true -- Trens
     },
     grab = {
         -- grab a dead npc out of a vehicle
@@ -82,6 +82,6 @@ Shared = {
         "WEAPON_Flare",
         "WEAPON_Ball",
         "WEAPON_Snowball",
-        "WEAPON_SmokeGrenade",
+        "WEAPON_SmokeGrenade"
     }
 }
