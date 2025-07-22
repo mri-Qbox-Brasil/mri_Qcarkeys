@@ -17,7 +17,6 @@ function Hotwire:HotwireHandler()
     SetVehicleAlarmTimeLeft(VehicleKeys.currentVehicle, hotwireTime)
     lib.hideTextUI()
     VehicleKeys.showTextUi = false
-    print(enginewire)
 
     if lib.progressBar({
         label = Shared.hotwire.label,
@@ -72,7 +71,7 @@ function Hotwire:HotwireHandler()
         else
             description = 'Você é tão experiente, como errou?'
         end
-        
+
         lib.notify({
             title = 'Falhou',
             description = description,

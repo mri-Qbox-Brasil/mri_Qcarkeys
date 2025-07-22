@@ -19,7 +19,7 @@ function VehicleKeys:Init(plate)
     if Shared.blacklistedClasses[vehClass] then return end
     self.hasKey = lib.table.contains(self.playerKeys, self.currentVehiclePlate) or lib.table.contains(self.playerTempKeys, self.currentVehiclePlate)
     self.isEngineRunning = self.hasKey and GetIsVehicleEngineRunning(self.currentVehicle) or false
-    if not self.hasKey and not self.showTextUi then
+    if not self.hasKey and not self.showTextUi and Shared.hotwire.available then
         lib.showTextUI('Ligação direta', {
             position = "right-center",
             icon = 'h',
@@ -120,7 +120,7 @@ end)
 exports('GiveKeyItem', function(plate)
     --- @old if not plate or not vehicle then
     if not plate then
-        return 
+        return
     end
     --- @old local model = GetLabelText(GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)))
     TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', plate)
@@ -128,14 +128,14 @@ end)
 
 exports('RemoveKeyItem', function(plate)
     if not plate then
-        return 
+        return
     end
     TriggerServerEvent('mm_carkeys:server:removevehiclekeys', plate)
 end)
 
 exports('HaveTemporaryKey', function(plate)
     if not plate then
-        return 
+        return
     end
     return VehicleKeys.playerTempKeys[plate] ~= nil
 end)

@@ -42,8 +42,10 @@ Shared = {
         minTime = 5000,
         maxTime = 7000,
     },
-    hotwire = { -- hotwire a vehicle
-        label = 'Fazendo ligação direta...',
+    hotwire = {
+        -- hotwire a vehicle
+        available = true,
+        label = "Fazendo ligação direta...",
         chance = 0.1,
         minTime = 2000,
         maxTime = 3000,
