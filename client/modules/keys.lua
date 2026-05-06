@@ -47,19 +47,17 @@ function KeyManagement:ToggleVehicleLock(vehicle, remote)
     end)
 
     TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 5, "lock", 0.3)
-    NetworkRequestControlOfEntity(vehicle)
-    while not NetworkHasControlOfEntity(vehicle) do Wait(0) end
+
+    local netId = NetworkGetNetworkIdFromEntity(vehicle)
     local vehLockStatus = GetVehicleDoorLockStatus(vehicle)
     if vehLockStatus == 1 then
-        TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(vehicle), 4)
-        SetVehicleDoorsLockedForAllPlayers(vehicle, true)
+        TriggerServerEvent('mm_carkeys:server:setVehLockState', netId, 2)
         lib.notify({
             description = 'Veículo trancado',
             type = 'error'
         })
     else
-        TriggerServerEvent('mm_carkeys:server:setVehLockState', NetworkGetNetworkIdFromEntity(vehicle), 1)
-        SetVehicleDoorsLockedForAllPlayers(vehicle, false)
+        TriggerServerEvent('mm_carkeys:server:setVehLockState', netId, 1)
         lib.notify({
             description = 'Veículo destrancado',
             type = 'success'
@@ -98,12 +96,12 @@ if Shared.keepKeysInVehicle then
         local delay
         while true do
             delay = 1000
-            if VehicleKeys.currentVehicle and cache.vehicle then
+            if VehicleKeys.currentVehicle ~= 0 and cache.vehicle and VehicleKeys.isInDrivingSeat then
                 local keysInVehicle = Entity(VehicleKeys.currentVehicle).state['keysIn']
                 if not keysInVehicle then
                     SetVehicleEngineOn(VehicleKeys.currentVehicle, false, false, true)
                     VehicleKeys.isEngineRunning = false
-                    delay = 5
+                    delay = 500
                 end
             end
             Citizen.Wait(delay)
