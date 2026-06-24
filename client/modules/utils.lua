@@ -26,7 +26,7 @@ end
 
 function Utils:RemoveSpecialCharacter(txt)
     if not txt then return 'undefined' end
-    return txt:gsub("%W", "")
+    return (txt:gsub("%W", "")):upper()
 end
 
 return Utils

@@ -4,7 +4,7 @@ local VehicleList = {}
 local getItemInfo = Shared.Inventory == 'qb' and function(item) return item.info end or function(item) return item.metadata end
 
 local function RemoveSpecialCharacter(txt)
-    return txt:gsub("%W", "")
+    return (txt:gsub("%W", "")):upper()
 end
 
 function GiveTempKeys(id, plate)
