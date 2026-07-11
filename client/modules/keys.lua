@@ -109,6 +109,25 @@ if Shared.keepKeysInVehicle then
     end)
 end
 
+-- Liga o motor se o jogador tiver permissão (chave na mão, chave "no carro" ou chave permanente).
+-- Retorna true se conseguiu ligar. Usado tanto pelo comando Z quanto pela auto-ignição no acelerador.
+function KeyManagement:StartEngine()
+    local vehicle = VehicleKeys.currentVehicle
+    if not vehicle or vehicle == 0 then return false end
+    local vehiclePlate = VehicleKeys.currentVehiclePlate
+    if (not Shared.keepKeysInVehicle and VehicleKeys.hasKey) or (Entity(vehicle).state['keysIn'] or exports.mri_Qcarkeys:HavePermanentKey(vehiclePlate)) then
+        SetVehicleEngineOn(vehicle, true, false, true)
+        VehicleKeys.isEngineRunning = true
+        if Shared.keepKeysInVehicle then
+            Entity(vehicle).state:set('keysIn', true, true)
+            TriggerEvent('mm_carkeys:client:removekeyitem')
+            TriggerEvent('mm_carkeys:client:addtempkeys', vehiclePlate)
+        end
+        return true
+    end
+    return false
+end
+
 RegisterCommand('mri:engine', function()
     if not VehicleKeys.currentVehicle then return end
 
@@ -131,17 +150,30 @@ RegisterCommand('mri:engine', function()
         end
         return
     end
-    if (not Shared.keepKeysInVehicle and VehicleKeys.hasKey) or (Entity(VehicleKeys.currentVehicle).state['keysIn'] or exports.mri_Qcarkeys:HavePermanentKey(vehiclePlate)) then
-        SetVehicleEngineOn(VehicleKeys.currentVehicle, true, false, true)
-        VehicleKeys.isEngineRunning = true
-        if Shared.keepKeysInVehicle then
-            Entity(VehicleKeys.currentVehicle).state:set('keysIn', true, true)
-            TriggerEvent('mm_carkeys:client:removekeyitem')
-            TriggerEvent('mm_carkeys:client:addtempkeys', vehiclePlate)
-        end
-    end
+    KeyManagement:StartEngine()
 
 end, false)
+
+-- Auto-ignição: pisar no acelerador (ou ré) liga o motor sem precisar apertar Z, desde que tenha a chave.
+if Shared.autoStartOnThrottle then
+    CreateThread(function()
+        while true do
+            local wait = 1000
+            if VehicleKeys.currentVehicle ~= 0 and VehicleKeys.isInDrivingSeat then
+                if not GetIsVehicleEngineRunning(VehicleKeys.currentVehicle) then
+                    wait = 100
+                    -- 71 = acelerar, 72 = frear/ré
+                    if IsControlPressed(0, 71) or IsControlPressed(0, 72) then
+                        if KeyManagement:StartEngine() then
+                            wait = 500
+                        end
+                    end
+                end
+            end
+            Wait(wait)
+        end
+    end)
+end
 
 RegisterKeyMapping('mri:engine', "Ligar/desligar veículo", 'keyboard', 'Z')
 

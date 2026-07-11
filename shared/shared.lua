@@ -4,6 +4,7 @@ Shared = {
     toggleLightsOnlyRemote = true, -- true if you want the vehicle lights to toggle only when not in the vehicle
     keepVehicleEngineOn = true, -- keep the engine on when exiting a vehicle
     keepKeysInVehicle = true, -- keep keys in vehicle
+    autoStartOnThrottle = true, -- liga o motor automaticamente ao acelerar/dar ré se tiver a chave (sem precisar apertar Z)
     steal = {
         available = true, -- allow players to carjack vehicles
         getKey = "permanent", -- "temporary", "permanent", "none"
