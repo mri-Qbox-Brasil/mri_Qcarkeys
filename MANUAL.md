@@ -1,215 +1,278 @@
-# mri_Qcarkeys - Manual Funcional
+# mri_Qcarkeys — Manual
 
-Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves permanentes/temporárias, lockpick, hotwiring, carjacking e key stacking.
+Sistema de chaves veiculares com chaves permanentes (item de inventário) e temporárias (memória do servidor), trancamento remoto, ligação direta, lockpick e roubo de veículos.
 
-## O que o recurso faz
+---
 
-O mri_Qcarkeys gerencia todo o sistema de chaves de veículos, permitindo que jogadores tenham chaves permanentes (itens no inventário) e temporárias (armazenadas no estado da entidade), com suporte a trancar/destrancar veículos com animação e sons, hotwiring com minigame, lockpick de portas e motor, roubo de veículos (carjacking) e consolidação de chaves em um keybag.
+## Sumário
 
-## Funcionalidades principais
+1. [Dependências](#dependências)
+2. [Instalação](#instalação)
+3. [Itens de inventário](#itens-de-inventário)
+4. [Permissões (ACE)](#permissões-ace)
+5. [Configuração](#configuração)
+6. [Comandos](#comandos)
+7. [Teclas](#teclas)
+8. [Chaves permanentes vs. temporárias](#chaves-permanentes-vs-temporárias)
+9. [Integrações](#integrações)
+10. [Entrypoints para outros recursos](#entrypoints-para-outros-recursos)
+11. [Estrutura de arquivos](#estrutura-de-arquivos)
 
-- **Chaves permanentes e temporárias**: Sistema dual de chaves com itens de inventário
-- **Trancar/destrancar com animação**: Key fob animation + sons de lock/unlock
-- **Hotwiring**: Minigame de ligação direta com chance escalada por nível de reputação
-- **Lockpick de porta e motor**: Suporte a ox_lib skill check ou minigame alternativo
-- **Carjacking**: Roubo de veículos de NPCs com chance baseada na arma utilizada
-- **Key stacking**: Consolidar todas as chaves em um único `keybag`
-- **Key grabbing**: Pegar chaves de NPCs vivos ou mortos em veículos
-- **Multi-framework**: Compatível com QBCore, QBX, ESX e ox_core
-- **Multi-inventory**: Compatível com ox_inventory, qb-inventory, ps-inventory, mm_inventory, qs-inventory
+---
 
-## Como funciona
+## Dependências
 
-1. Jogador recebe chave permanente (item) ou temporária (estado da entidade)
-2. Ao se aproximar de um veículo, o sistema verifica se possui chave
-3. Tecla L tranca/destranca o veículo com animação e som
-4. Tecla Z liga/desliga o motor (se tiver chave)
-5. Sem chave, tecla H inicia hotwiring (minigame)
-6. Lockpick e carjacking disponíveis conforme configuração
+| Recurso | Obrigatório | Observação |
+|---|---|---|
+| `ox_lib` | Sim | Comandos, callbacks, progressBar, textUI, skillCheck, notificações |
+| Framework | Sim | Um entre `qbx_core` (via compat `qb-core`), `qb-core`, `es_extended` ou `ox_core`. Detectado automaticamente em `shared/init.lua` |
+| Inventário | Sim | Um entre `ox_inventory`, `qb-inventory`, `ps-inventory`, `mm_inventory` ou `qs-inventory`. Detectado automaticamente em `shared/init.lua` |
+| `cw-rep` | Sim (se usar hotwire/lockpick) | `getCurrentLevel` e `updateSkill` são chamados sem guarda em `hotwire.lua` e `lockpick.lua` |
+| `InteractSound` | Não | Som de trancar/destrancar (`InteractSound_SV:PlayWithinDistance`) |
+| `hud` (QBCore/Qbox) | Não | Ganho de estresse (`hud:server:GainStress`) em roubo, hotwire e lockpick |
+| `rep-enginewire` | Não | Minigame extra de ligação direta. Só é usado se o recurso estiver iniciado |
+| `inside-lockpicking` | Não | Minigame alternativo de lockpick (`lockpick.minigameScript`) |
 
-## Configurações disponíveis (shared/shared.lua)
+Se nenhum framework ou nenhum inventário for detectado, `Shared.Ready` fica `false` e o recurso não registra nada no client.
 
-### Opções gerais
-| Opção | Padrão | Descrição |
-|-------|---------|-----------|
-| `LockNPCVehicle` | `false` | Trancar todos os veículos NPCs quando o jogador se aproxima |
-| `playerDraggable` | `true` | Permitir que jogadores arrastem outros jogadores |
-| `toggleLightsOnlyRemote` | `true` | Alternar luzes apenas quando fora do veículo |
-| `keepVehicleEngineOn` | `true` | Manter motor ligado ao sair do veículo |
-| `keepKeysInVehicle` | `true` | Chaves ficam no veículo; motor não liga sem elas |
+---
 
-### Carjacking (steal)
-| Opção | Padrão | Descrição |
-|-------|---------|-----------|
-| `steal.available` | `true` | Habilitar carjacking |
-| `steal.getKey` | `"permanent"` | Tipo de chave recebida: `"permanent"`, `"temporary"`, `"none"` |
-| `steal.chance` | Por arma | Chance de sucesso por categoria de arma (hash) |
+## Instalação
 
-### Lockpick (lockpick)
-| Opção | Padrão | Descrição |
-|-------|---------|-----------|
-| `lockpick.minigameScript` | `"ox_lib"` | `"ox_lib"` ou `"inside-lockpicking"` |
-| `lockpick.breakChance` | `0.5` | Chance do lockpick quebrar (normal) |
-| `lockpick.advancedBreakChance` | `0.1` | Chance do lockpick quebrar (avançado) |
+1. Copie a pasta `mri_Qcarkeys` para `resources/`.
+2. Adicione ao `server.cfg`:
+   ```
+   ensure mri_Qcarkeys
+   ```
+3. Cadastre os itens `vehiclekey`, `keybag`, `lockpick` e `advancedlockpick` no seu inventário (veja [Itens de inventário](#itens-de-inventário)).
+4. **Remova ou desabilite o `qb-vehiclekeys`** — o `mri_Qcarkeys` já registra os eventos de compatibilidade `qb-vehiclekeys:server:AcquireVehicleKeys` e `qb-vehiclekeys:client:AddKeys`, e os dois recursos rodando juntos duplicam as chaves.
+5. Se você **não** usa `ox_core`, mantenha as linhas `'@ox_core/imports/*.lua'` comentadas no `fxmanifest.lua` (é o padrão do repo) para evitar warning no startup.
 
-### Hotwiring (hotwire)
-| Opção | Padrão | Descrição |
-|-------|---------|-----------|
-| `hotwire.available` | `true` | Habilitar hotwiring |
-| `hotwire.chance` | `0.1` | Chance base de sucesso (escalada por nível cw-rep) |
+---
 
-### Key Grabbing (grab)
-| Opção | Padrão | Descrição |
-|-------|---------|-----------|
-| `grab.alive` | `true` | Permitir pegar chaves de NPCs vivos |
-| `grab.leaveKeysOnVehicle` | `true` | Deixar chaves no veículo ao pegar |
+## Itens de inventário
 
-### Classes e armas bloqueadas
-- `blacklistedClasses`: 13-16, 21 (bicicletas, barcos, helicópteros, aviões, trens)
-- `BlackListedWeapon`: 28 armas corpo a corpo/arremessáveis que não podem fazer carjacking
+O recurso não cria itens; ele espera que estes nomes existam no seu inventário.
 
-## Controles
+| Item | Uso | Metadata gravada pelo recurso |
+|---|---|---|
+| `vehiclekey` | Chave permanente de um veículo | `plate` (placa sem caracteres especiais, maiúscula) e `label` (`CHAVE-<placa>`) |
+| `keybag` | Chaveiro que consolida várias chaves | `plates` (lista de `{plate, label}`) e `platestxt` (placas concatenadas) |
+| `lockpick` | Consumido ao arrombar porta/ignição | — |
+| `advancedlockpick` | Igual ao `lockpick`, com chance de quebra menor | — |
 
-| Tecla | Ação |
-|-------|------|
-| **L** | Trancar/destrancar veículo (`togglelocks`) |
-| **Z** | Ligar/desligar motor (`mri:engine`) |
-| **H** | Hotwiring (quando dentro de veículo sem chave) |
+O item de lockpick precisa disparar o evento client `lockpicks:UseLockpick(isAdvanced)` quando usado — é assim que o minigame é iniciado.
+
+---
+
+## Permissões (ACE)
+
+Os comandos `/givetempkeys` e `/removetempkeys` são registrados com `lib.addCommand(..., restricted = 'group.admin')`, o que cria as ACEs `command.givetempkeys` e `command.removetempkeys`.
+
+```
+add_ace group.admin command.givetempkeys allow
+add_ace group.admin command.removetempkeys allow
+```
+
+Os comandos `/givekeys` e `/removekeys` não usam `restricted`: o gate é feito dentro do handler, que aceita o job `police`, o job `cardealer` **ou** a ACE `admin`.
+
+```
+add_ace group.admin admin allow
+```
+
+---
+
+## Configuração
+
+Arquivo: `shared/shared.lua`.
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `LockNPCVehicle` | bool | Sim | Tranca o veículo do NPC e faz o motorista fugir quando o jogador tenta entrar |
+| `playerDraggable` | bool | Sim | Permite que jogadores sejam arrancados do banco por outros jogadores |
+| `toggleLightsOnlyRemote` | bool | Sim | Pisca os faróis apenas quando o trancamento é feito fora do veículo |
+| `keepVehicleEngineOn` | bool | Sim | Mantém o motor ligado ao sair do veículo |
+| `keepKeysInVehicle` | bool | Sim | Ativa o modelo "chave no contato": ligar o motor converte a chave permanente em temporária e seta o entity state `keysIn` |
+| `autoStartOnThrottle` | bool | Sim | Liga o motor ao pisar no acelerador/ré (controles 71 e 72) se o jogador tiver a chave, sem precisar do `Z` |
+| `steal.available` | bool | Sim | Habilita o roubo de veículo (carjacking) mirando em NPC motorista |
+| `steal.getKey` | string | Sim | Chave recebida ao concluir o roubo: `"permanent"`, `"temporary"` ou `"none"` |
+| `steal.label` | string | Sim | Texto da progressBar do roubo |
+| `steal.minTime` / `steal.maxTime` | ms | Sim | Faixa aleatória da duração do roubo |
+| `steal.stressIncrease` | number | Sim | Estresse ganho ao roubar |
+| `steal.chance` | tabela | Sim | Chance de sucesso por grupo de arma. Chave = hash do `GetWeapontypeGroup` em string; valor = 0.0 a 1.0. Grupo não listado usa 0.5 |
+| `lockpick.minigameScript` | string | Sim | `"ox_lib"` (usa `lib.skillCheck('easy')`) ou `"inside-lockpicking"` |
+| `lockpick.stressIncrease` | number | Sim | Estresse ganho por tentativa de lockpick |
+| `lockpick.breakChance` | number | Sim | Chance (0.0–1.0) do `lockpick` quebrar por tentativa |
+| `lockpick.advancedBreakChance` | number | Sim | Chance do `advancedlockpick` quebrar por tentativa |
+| `blacklistedClasses` | tabela | Sim | Classes de veículo ignoradas pelo sistema (padrão: 13 bicicletas, 14 barcos, 15 helicópteros, 16 aviões, 21 trens) |
+| `grab.alive` | bool | Sim | Permite arrancar a chave de um NPC vivo. Com `false`, só de motorista morto |
+| `grab.leaveKeysOnVehicle` | bool | Sim | Concede chave temporária ao concluir o grab |
+| `grab.label` | string | Sim | Texto da progressBar do grab |
+| `grab.minTime` / `grab.maxTime` | ms | Sim | Faixa aleatória da duração do grab |
+| `hotwire.available` | bool | Sim | Habilita a ligação direta (textUI + tecla `H`) quando o jogador está no banco do motorista sem chave |
+| `hotwire.label` | string | Sim | Texto da progressBar da ligação direta |
+| `hotwire.chance` | number | Sim | Chance base de sucesso. É multiplicada pelo nível `hotwiring` do `cw-rep` (limitado a 8) |
+| `hotwire.minTime` / `hotwire.maxTime` | ms | Sim | Faixa aleatória da duração da ligação direta (também é o tempo de alarme do veículo) |
+| `hotwire.stressIncrease` | number | Sim | Estresse ganho na ligação direta |
+| `BlackListedWeapon` | lista | Sim | Armas que não permitem carjacking (corpo a corpo, arremessáveis, itens) |
+
+---
 
 ## Comandos
 
-| Comando | Restrito | Descrição |
-|---------|----------|-----------|
-| `/givetempkeys [target] [plate]` | `group.admin` | Dar chaves temporárias |
-| `/removetempkeys [target] [plate]` | `group.admin` | Remover chaves temporárias |
-| `/givekeys` | police/cardealer/admin | Dar chave permanente do veículo atual |
-| `/removekeys` | police/cardealer/admin | Remover chave permanente do veículo atual |
-| `/stackkeys` | Não | Consolidar todas as chaves em um keybag |
-| `/unstackkeys` | Não | Separar keybag em chaves individuais |
+| Comando | Permissão | Descrição |
+|---|---|---|
+| `/givetempkeys [target] [plate]` | ACE `command.givetempkeys` | Dá chave temporária. Sem `target`, usa quem executou; sem `plate`, usa a placa do veículo em que o alvo está |
+| `/removetempkeys [target] [plate]` | ACE `command.removetempkeys` | Remove a chave temporária. Mesmos defaults do comando acima |
+| `/givekeys` | Job `police`, job `cardealer` ou ACE `admin` | Abre uma progressBar de 5 s e entrega o item `vehiclekey` do veículo em que o jogador está |
+| `/removekeys` | Job `police`, job `cardealer` ou ACE `admin` | Remove o item `vehiclekey` do veículo em que o jogador está |
+| `/stackkeys` | Todos | Junta todos os `vehiclekey` do inventário em um `keybag` |
+| `/unstackkeys` | Todos | Desfaz o `keybag`, devolvendo um `vehiclekey` por placa |
 
-## Eventos
+---
 
-### Client → Server
-| Evento | Descrição |
-|--------|-----------|
-| `mm_carkeys:server:setVehLockState` | Definir estado de trancamento do veículo |
-| `mm_carkeys:server:acquiretempvehiclekeys` | Requisitar chaves temporárias |
-| `mm_carkeys:server:removetempvehiclekeys` | Remover chaves temporárias |
-| `mm_carkeys:server:acquirevehiclekeys` | Requisitar chave permanente |
-| `mm_carkeys:server:removevehiclekeys` | Remover chave permanente |
-| `mm_carkeys:server:stackkeys` | Stack de chaves em keybag |
-| `mm_carkeys:server:unstackkeys` | Unstack keybag em chaves individuais |
+## Teclas
 
-### Server → Client
-| Evento | Descrição |
-|--------|-----------|
-| `mm_carkeys:client:addtempkeys` | Adicionar chave temporária na lista do cliente |
-| `mm_carkeys:client:removetempkeys` | Remover chave temporária da lista do cliente |
-| `mm_carkeys:client:setplayerkey` | Definir chave permanente |
-| `mm_carkeys:client:removeplayerkey` | Remover chave permanente |
-| `mm_carkeys:client:givekeyitem` | Progress bar de dar chave |
-| `mm_carkeys:client:stackkeys` | Progress bar de stack |
-| `mm_carkeys:client:unstackkeys` | Progress bar de unstack |
+| Tecla | Comando | Ação |
+|---|---|---|
+| `L` | `togglelocks` | Tranca/destranca o veículo atual ou o mais próximo em 5 m, se o jogador tiver a chave. Toca a animação do chaveiro e o som do `InteractSound` |
+| `Z` | `mri:engine` | Liga/desliga o motor no banco do motorista |
+| `H` | — (`IsControlJustPressed` 74) | Inicia a ligação direta quando está no banco do motorista sem chave e `hotwire.available` é `true` |
 
-## Exports
+`L` e `Z` são registrados via `RegisterKeyMapping` e podem ser reconfigurados pelo jogador nas Configurações do FiveM.
 
-### Client
-| Export | Parâmetros | Retorno | Descrição |
-|--------|------------|---------|-----------|
-| `GiveTempKeys` | `(plate)` | - | Dar chave temporária para uma placa |
-| `RemoveTempKeys` | `(plate)` | - | Remover chave temporária para uma placa |
-| `GiveKeyItem` | `(plate)` | - | Dar item de chave permanente |
-| `RemoveKeyItem` | `(plate)` | - | Remover item de chave permanente |
-| `HaveTemporaryKey` | `(plate)` | boolean | Verifica se tem chave temporária |
-| `HavePermanentKey` | `(plate)` | boolean | Verifica se tem chave permanente |
+---
 
-### Server
-| Export | Parâmetros | Retorno | Descrição |
-|--------|------------|---------|-----------|
-| `GiveTempKeys` | `(src, plate)` | - | Dar chave temporária ao jogador |
-| `RemoveTempKeys` | `(src, plate)` | - | Remover chave temporária do jogador |
-| `GiveKeyItem` | `(src, plate, netId)` | - | Dar item de chave permanente |
-| `RemoveKeyItem` | `(src, plate)` | - | Remover item de chave permanente |
-| `HaveTemporaryKey` | `(src, plate)` | boolean | Verifica via callback |
-| `HavePermanentKey` | `(src, plate)` | boolean | Verifica via callback |
+## Chaves permanentes vs. temporárias
 
-## Itens necessários (inventory)
+- **Permanente** — é o item `vehiclekey` (ou uma placa dentro do `keybag`). Persiste no inventário, sobrevive a logout e é verificada lendo o inventário do jogador.
+- **Temporária** — vive na tabela `VehicleList[citizenid]` em memória no servidor (`server/server.lua`). É perdida no restart do recurso. É o que o hotwire, o lockpick de ignição e o grab concedem.
+
+Com `keepKeysInVehicle = true`:
+- Ligar o motor seta o entity state `keysIn` no veículo, remove o item `vehiclekey` e concede chave temporária — a chave "fica no contato".
+- Desligar o motor limpa `keysIn` e devolve o item `vehiclekey`.
+- Uma thread verifica `keysIn` a cada 1 s: sem esse state, o motor é desligado à força.
+
+---
+
+## Integrações
+
+### cw-rep
+
+O nível de habilidade escala as ações de crime. Na ligação direta, a chance de sucesso é `hotwire.chance * nível` (nível `hotwiring`, teto 8); em caso de sucesso, `updateSkill("hotwiring", 1)` é chamado. No lockpick de porta bem-sucedido, `updateSkill("lockpicking", 1)`.
+
+### rep-enginewire
+
+Se o recurso estiver iniciado, `exports["rep-enginewire"]:MiniGame()` roda junto com a progressBar da ligação direta e o resultado dele passa a valer como condição adicional de sucesso.
+
+### inside-lockpicking
+
+Com `lockpick.minigameScript = "inside-lockpicking"`, o minigame do `ox_lib` é substituído por `exports['inside-lockpicking']:StartLockPicking({ difficulty = 'easy', requiredAmount = 2 })`.
+
+### InteractSound
+
+O som de trancar é enviado com `TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 5, "lock", 0.3)`. Sem o recurso, o restante continua funcionando sem som.
+
+---
+
+## Entrypoints para outros recursos
+
+### Exports de servidor
 
 ```lua
-['vehiclekey'] = {
-    label = 'CHAVE',
-    weight = 50,
-    type = 'item',
-    image = 'vehiclekey.png',
-    description = 'Chave de veículo',
-    client = { status = { hunger = -10000 } },
-},
-['keybag'] = {
-    label = 'Chaveiro',
-    weight = 100,
-    type = 'item',
-    image = 'keybag.png',
-    description = 'Um chaveiro com várias chaves',
-},
-['lockpick'] = {
-    label = 'Gazuas',
-    weight = 100,
-    type = 'item',
-    image = 'lockpick.png',
-    description = 'Gazuas para abrir fechaduras',
-},
-['advancedlockpick'] = {
-    label = 'Gazuas Avançadas',
-    weight = 150,
-    type = 'item',
-    image = 'advancedlockpick.png',
-    description = 'Gazuas avançadas com menor chance de quebrar',
-},
+exports['mri_Qcarkeys']:GiveTempKeys(src, plate)          -- concede chave temporária
+exports['mri_Qcarkeys']:RemoveTempKeys(src, plate)        -- remove chave temporária
+exports['mri_Qcarkeys']:GiveKeyItem(src, plate, netId)    -- entrega o item vehiclekey
+exports['mri_Qcarkeys']:RemoveKeyItem(src, plate)         -- remove o item vehiclekey
+exports['mri_Qcarkeys']:HaveTemporaryKey(src, plate)      --> boolean (callback ao client)
+exports['mri_Qcarkeys']:HavePermanentKey(src, plate)      --> boolean (callback ao client)
 ```
 
-## Integração com outros recursos MRI
+### Exports de client
 
-### Obrigatórias
-- `ox_lib` — UI, menus, progress bars, notificações
-
-### Opcionais (auto-detected)
-- **Frameworks**: `qb-core`, `qbx_core`, `es_extended`, `ox_core`
-- **Inventories**: `ox_inventory`, `qb-inventory`, `ps-inventory`, `mm_inventory`, `qs-inventory`
-- `rep-enginewire` — Minigame alternativo de hotwiring
-- `inside-lockpicking` — Minigame alternativo de lockpick
-- `cw-rep` — Sistema de reputação/habilidade para hotwiring e lockpick
-- `InteractSound` — Sons de lock/unlock
-
-## Exemplos práticos
-
-### Dar chave permanente via export server
 ```lua
-exports['mri_Qcarkeys']:GiveKeyItem(source, 'ABC1234', vehicleNetId)
+exports.mri_Qcarkeys:GiveTempKeys(plate)
+exports.mri_Qcarkeys:RemoveTempKeys(plate)
+exports.mri_Qcarkeys:GiveKeyItem(plate)
+exports.mri_Qcarkeys:RemoveKeyItem(plate)
+exports.mri_Qcarkeys:HaveTemporaryKey(plate)   --> boolean
+exports.mri_Qcarkeys:HavePermanentKey(plate)   --> boolean
 ```
 
-### Verificar se jogador tem chave temporária
+### Eventos de servidor
+
 ```lua
-local hasKey = exports['mri_Qcarkeys']:HaveTemporaryKey('ABC1234')
-if hasKey then
-    -- jogador tem chave temporária
-end
+TriggerServerEvent('mm_carkeys:server:acquirevehiclekeys', plate)     -- entrega item vehiclekey
+TriggerServerEvent('mm_carkeys:server:removevehiclekeys', plate)      -- remove item vehiclekey
+TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', plate)
+TriggerServerEvent('mm_carkeys:server:removetempvehiclekeys', plate)
+TriggerServerEvent('mm_carkeys:server:setVehLockState', vehNetId, state) -- state: 1 destrancado, 2 trancado
+TriggerServerEvent('mm_carkeys:server:stackkeys')
+TriggerServerEvent('mm_carkeys:server:unstackkeys')
+TriggerServerEvent('mm_carkeys:server:removelockpick', 'lockpick')
 ```
 
-### Dar chaves temporárias via comando admin
+### Eventos de client
+
 ```lua
-TriggerEvent('mm_carkeys:server:acquiretempvehiclekeys', source, 'ABC1234')
+TriggerClientEvent('mm_carkeys:client:addtempkeys', src, plate)
+TriggerClientEvent('mm_carkeys:client:removetempkeys', src, plate)
+TriggerClientEvent('mm_carkeys:client:setplayerkey', src, plate, netId)
+TriggerClientEvent('mm_carkeys:client:removeplayerkey', src, plate)
+TriggerClientEvent('mm_carkeys:client:givekeyitem', src)   -- progressBar + entrega a chave do veículo atual
+TriggerClientEvent('mm_carkeys:client:removekeyitem', src)
+TriggerClientEvent('mm_carkeys:client:stackkeys', src)
+TriggerClientEvent('mm_carkeys:client:unstackkeys', src)
+
+TriggerEvent('lockpicks:UseLockpick', isAdvanced)  -- client; dispare no "use" do item de lockpick
 ```
 
-### Configurar chance de hotwiring com cw-rep
-A chance de hotwiring é escalada pelo nível de reputação no `cw-rep` (níveis 1-8), começando em `Config.hotwire.chance` (10% padrão).
+### Compatibilidade com o `qb-vehiclekeys`
 
-## Solução de problemas
+Os dois eventos abaixo são aceitos para não quebrar recursos antigos:
 
-- **Chaves não funcionam**: Verifique se o framework e inventory estão sendo detectados corretamente
-- **Motor não liga**: Com `keepKeysInVehicle = true`, o veículo verifica o entity state `keysIn`
-- **Hotwiring não dispara**: Verifique se `Config.hotwire.available = true` e jogador não tem chave
-- **Lockpick quebra sempre**: Ajuste `Config.lockpick.breakChance` e `advancedBreakChance`
-- **Carjacking cooldown**: Há cooldown de 5 segundos entre tentativas
-- **Stacking converte tudo**: O stacking converte todos os itens `vehiclekey` em um único `keybag` com metadata de placas
-- **NPCs fogem**: NPCs ocupantes fogem quando um carjacking é bem-sucedido
-- **Desligar motor consome chave**: Com `keepKeysInVehicle = true`, desligar consome a chave permanente e concede temporária
+```lua
+TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)  -- entrega item vehiclekey
+TriggerEvent('qb-vehiclekeys:client:AddKeys', plate)                   -- concede chave temporária
+```
+
+### Callbacks
+
+```lua
+lib.callback.await('mm_carkeys:server:getvehiclekeys', false)     -- lista de placas com chave temporária
+lib.callback.await('mm_carkeys:client:getplate', src)             -- placa do veículo em que o jogador está
+lib.callback.await('mm_carkeys:client:havekey', src, type, plate) -- type: 'temp' ou 'perma'
+```
+
+---
+
+## Estrutura de arquivos
+
+```
+mri_Qcarkeys/
+├── shared/
+│   ├── shared.lua        — toda a configuração (tabela Shared)
+│   └── init.lua          — autodetecção de framework e inventário
+├── bridge/
+│   ├── framework/
+│   │   ├── qb.lua        — bridge QBCore (client)
+│   │   ├── qbox.lua      — bridge Qbox (client)
+│   │   ├── esx.lua       — bridge ESX (client)
+│   │   └── ox.lua        — bridge ox_core (client)
+│   └── inventory/
+│       └── client.lua    — leitura dos itens do jogador por inventário
+├── client/
+│   ├── init.lua          — loop principal, caches (vehicle/seat/weapon), exports de client
+│   ├── interface.lua     — estado compartilhado do client (chaves, veículo atual, flags)
+│   └── modules/
+│       ├── keys.lua      — trancar/destrancar, motor, keysIn, comandos e keybinds
+│       ├── hotwire.lua   — ligação direta com cw-rep e rep-enginewire
+│       ├── lockpick.lua  — lockpick de porta e de ignição, quebra do item
+│       ├── steal.lua     — carjacking e grab de chave de NPC
+│       └── utils.lua     — helpers (normalização de placa, peds no veículo, arma bloqueada)
+├── server/
+│   ├── server.lua        — chaves temporárias em memória, itens, exports e eventos
+│   ├── commands.lua      — comandos de chave
+│   └── bridge.lua        — bridge de framework e inventário (server)
+└── fxmanifest.lua
+```
