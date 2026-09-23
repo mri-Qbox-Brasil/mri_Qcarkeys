@@ -137,7 +137,7 @@ exports('HaveTemporaryKey', function(plate)
     if not plate then
         return
     end
-    return VehicleKeys.playerTempKeys[plate] ~= nil
+    return lib.table.contains(VehicleKeys.playerTempKeys, Utils:RemoveSpecialCharacter(plate))
 end)
 
 exports('HavePermanentKey', function(plate)
