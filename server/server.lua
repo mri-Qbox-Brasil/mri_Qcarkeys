@@ -1,5 +1,5 @@
 local Bridge = require 'server.bridge'
-local KeyBag = Shared.Inventory == 'ox' and require 'server.keybag'
+local KeyRing = Shared.Inventory == 'ox' and require 'server.keyring'
 
 local VehicleList = {}
 local getItemInfo = Shared.Inventory == 'qb' and function(item) return item.info end or function(item) return item.metadata end
@@ -8,15 +8,24 @@ local function RemoveSpecialCharacter(txt)
     return (txt:gsub("%W", "")):upper()
 end
 
+local function buildKeyInfo(src, plate)
+    plate = RemoveSpecialCharacter(plate)
+    -- only the client has vehicle display names; a timeout just leaves the key without a model
+    local ok, model = pcall(lib.callback.await, 'mm_carkeys:client:getvehiclelabel', src, plate)
+    model = ok and type(model) == 'string' and model or nil
+    return {
+        plate = plate,
+        model = model,
+        label = model and ('Chave do %s'):format(model) or ('Chave %s'):format(plate)
+    }
+end
+
 function GiveTempKeys(id, plate)
     local citizenid = Bridge:GetPlayerCitizenId(id)
     if not VehicleList[citizenid] then VehicleList[citizenid] = {} end
     plate = RemoveSpecialCharacter(plate)
     if Shared.keepKeysInVehicle then
-        local info = {}
-		info.label = "CHAVE-"..plate
-        info.plate = plate
-		Bridge:AddItem(id, 'vehiclekey', info)
+        Bridge:AddItem(id, 'vehiclekey', buildKeyInfo(id, plate))
     end
 
     table.insert(VehicleList[citizenid], plate)
@@ -130,23 +139,16 @@ end)
 RegisterNetEvent('mm_carkeys:server:acquirevehiclekeys', function(plate)
     local src = source
 	local Player = Bridge:GetPlayer(src)
-    if Player then
-
-        local info = {}
-		info.label = "CHAVE-" ..plate ---@old: model.. '-' ..plate
-        info.plate = plate
-		Bridge:AddItem(src, 'vehiclekey', info)
+    if Player and plate then
+        Bridge:AddItem(src, 'vehiclekey', buildKeyInfo(src, plate))
 	end
 end)
 
 RegisterNetEvent('qb-vehiclekeys:server:AcquireVehicleKeys', function(plate)
     local src = source
 	local Player = Bridge:GetPlayer(src)
-    if Player then
-        local info = {}
-		info.label = 'Chaves -'..plate
-        info.plate = plate
-		Bridge:AddItem(src, 'vehiclekey', info)
+    if Player and plate then
+        Bridge:AddItem(src, 'vehiclekey', buildKeyInfo(src, plate))
 	end
 end)
 
@@ -161,7 +163,7 @@ RegisterNetEvent('mm_carkeys:server:removevehiclekeys', function(plate)
             return
         end
     end
-    if KeyBag then KeyBag.RemovePlate(src, plate) end
+    if KeyRing then KeyRing.RemovePlate(src, plate) end
 end)
 
 -- lib.versionCheck('SOH69/mm_carkeys')

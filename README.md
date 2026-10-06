@@ -9,7 +9,7 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
 - 🔧 **Hotwiring** — Minigame de ligação direta com chance escalada por nível de reputação.
 - 🪛 **Lockpick de porta e motor** — Suporte a ox_lib skill check ou minigame alternativo.
 - 🚗 **Carjacking** — Roubo de veículos de NPCs com chance baseada na arma utilizada.
-- 📦 **Bolsa de chaves**: o `keybag` é um container do ox_inventory que guarda as chaves, com botão direito para guardar as soltas.
+- 📦 **Molho de chaves**: juntar as chaves pelo botão direito cria um `keyring`, container do ox_inventory que some quando fica vazio. Cada chave mostra o modelo e a placa do carro.
 - 🎒 **Key grabbing** — Pegar chaves de NPCs vivos ou mortos em veículos.
 - 🌐 **Multi-framework** — Compatível com QBCore, QBX, ESX e ox_core.
 - 📦 **Multi-inventory** — Compatível com ox_inventory, qb-inventory, ps-inventory, mm_inventory, qs-inventory.
@@ -97,7 +97,7 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
 | `RemoveKeyItem` | `(plate)` | Remover item de chave permanente. |
 | `HaveTemporaryKey` | `(plate)` | Retorna `boolean`. |
 | `HavePermanentKey` | `(plate)` | Retorna `boolean`. |
-| `StackKeys` | `(bagSlot?)` | Guardar as chaves soltas na bolsa (botão do inventário). |
+| `StackKeys` | `(ringSlot?)` | Juntar as chaves soltas no molho de chaves (botão do inventário). |
 
 ### Server
 
@@ -121,11 +121,11 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
     description = 'Chave de veículo',
     client = { status = { hunger = -10000 } },
 },
-['keybag'] = {
+['keyring'] = {
     label = 'Chaveiro',
     weight = 100,
     type = 'item',
-    image = 'keybag.png',
+    image = 'keys.png',
     description = 'Um chaveiro com várias chaves',
 },
 ['lockpick'] = {
@@ -144,7 +144,7 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
 },
 ```
 
-No ox_inventory, `vehiclekey` e `keybag` levam os botões de guardar chaves no `data/items.lua` (ver a seção "Bolsa de chaves" do [MANUAL](MANUAL.md)).
+No ox_inventory, `vehiclekey` e `keyring` levam os botões de juntar chaves no `data/items.lua` (ver a seção "Molho de chaves" do [MANUAL](MANUAL.md)).
 
 ## Dependências
 
@@ -185,7 +185,7 @@ mri_Qcarkeys/
 ├── server/
 │   ├── bridge.lua               # Abstração framework/inventory
 │   ├── commands.lua             # Comandos admin/player
-│   ├── keybag.lua               # Bolsa de chaves (container do ox_inventory)
+│   ├── keyring.lua              # Molho de chaves (container do ox_inventory)
 │   └── server.lua               # Lógica principal: distribuição de chaves
 ├── shared/
 │   ├── init.lua                 # Auto-detecção de framework e inventory
@@ -205,7 +205,7 @@ mri_Qcarkeys/
 | `mm_carkeys:server:removetempvehiclekeys` | Remover chaves temporárias. |
 | `mm_carkeys:server:acquirevehiclekeys` | Requisitar chave permanente. |
 | `mm_carkeys:server:removevehiclekeys` | Remover chave permanente. |
-| `mm_carkeys:server:stackkeys` | Guardar as chaves soltas na bolsa. |
+| `mm_carkeys:server:stackkeys` | Juntar as chaves soltas no molho de chaves. |
 
 ### Server → Client
 
@@ -220,7 +220,7 @@ mri_Qcarkeys/
 ## Observações importantes ⚠️
 
 - Quando `keepKeysInVehicle = true`, o veículo verifica o entity state `keysIn` antes de permitir ligar o motor. Desligar o motor consome a chave permanente e concede temporária.
-- Com o ox_inventory, o `keybag` é um container registrado pelo próprio recurso; as placas guardadas ficam espelhadas no metadata da bolsa.
+- Com o ox_inventory, o `keyring` é um container registrado pelo próprio recurso; as placas guardadas ficam espelhadas no metadata do molho, que some quando fica vazio.
 - A chance de hotwiring é escalada pelo nível de reputação no `cw-rep` (níveis 1-8).
 - Carjacking tem cooldown de 5 segundos entre tentativas.
 - NPCs ocupantes fogem quando um carjacking é bem-sucedido.

@@ -14,7 +14,7 @@ function KeyManagement:SetVehicleKeys()
         local itemInfo = self.getItemInfo(item)
         if itemInfo and item.name == "vehiclekey" and itemInfo.plate then
             VehicleKeys.playerKeys[#VehicleKeys.playerKeys+1] = Utils:RemoveSpecialCharacter(itemInfo.plate)
-        elseif itemInfo and item.name == "keybag" then
+        elseif itemInfo and item.name == "keyring" then
             for _, plate in pairs(itemInfo.plates or {}) do
                 if type(plate) == 'string' then
                     VehicleKeys.playerKeys[#VehicleKeys.playerKeys+1] = Utils:RemoveSpecialCharacter(plate)
@@ -184,6 +184,20 @@ lib.callback.register('mm_carkeys:client:getplate', function()
     return VehicleKeys.currentVehiclePlate
 end)
 
+lib.callback.register('mm_carkeys:client:getvehiclelabel', function(plate)
+    for _, vehicle in ipairs(GetGamePool('CVehicle')) do
+        if Utils:RemoveSpecialCharacter(GetVehicleNumberPlateText(vehicle)) == plate then
+            local name = GetDisplayNameFromVehicleModel(GetEntityModel(vehicle))
+            local label = GetLabelText(name)
+            return label ~= 'NULL' and label or name
+        end
+    end
+end)
+
+if Shared.Inventory == 'ox' then
+    exports.ox_inventory:displayMetadata({ { model = 'Modelo' }, { plate = 'Placa' } })
+end
+
 lib.callback.register('mm_carkeys:client:havekey', function(type, plate)
     if type == 'temp' then
         return lib.table.contains(VehicleKeys.playerTempKeys, Utils:RemoveSpecialCharacter(plate))
@@ -282,19 +296,19 @@ RegisterNetEvent('mm_carkeys:client:removekeyitem', function()
     TriggerServerEvent('mm_carkeys:server:removevehiclekeys', VehicleKeys.currentVehiclePlate)
 end)
 
-function KeyManagement:StackKeys(bagSlot)
+function KeyManagement:StackKeys(ringSlot)
     local hasLooseKey = false
     for _, item in pairs(InventoryBridge:GetPlayerItems() or {}) do
         if item.name == 'vehiclekey' then hasLooseKey = true break end
     end
     if not hasLooseKey then
         return lib.notify({
-            description = 'Você não tem chaves soltas para guardar',
+            description = 'Você não tem chaves soltas para juntar',
             type = 'error'
         })
     end
     if lib.progressBar({
-        label = 'Guardando as chaves...',
+        label = 'Juntando as chaves...',
         duration = 5000,
         position = 'bottom',
         useWhileDead = false,
@@ -309,7 +323,7 @@ function KeyManagement:StackKeys(bagSlot)
             combat = true
         }
     }) then
-        TriggerServerEvent('mm_carkeys:server:stackkeys', bagSlot)
+        TriggerServerEvent('mm_carkeys:server:stackkeys', ringSlot)
     else
         lib.notify({
             description = 'Ação cancelada',
@@ -319,8 +333,8 @@ function KeyManagement:StackKeys(bagSlot)
 end
 
 -- own thread so the inventory button callback is not held by the progress bar
-exports('StackKeys', function(bagSlot)
-    CreateThread(function() KeyManagement:StackKeys(bagSlot) end)
+exports('StackKeys', function(ringSlot)
+    CreateThread(function() KeyManagement:StackKeys(ringSlot) end)
 end)
 
 return KeyManagement
