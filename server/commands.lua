@@ -108,9 +108,9 @@ lib.addCommand('stackkeys', {
 }, function(source)
     local src = source
     local keys = Bridge:GetPlayerItemsByName(src, 'vehiclekey')
-    if not next(keys) then
+    if not keys or not next(keys) then
         local ndata = {
-            description = 'You don\'t have any keys',
+            description = 'Você não tem nenhuma chave',
             type = 'error'
         }
         TriggerClientEvent('ox_lib:notify', src, ndata)
@@ -124,10 +124,10 @@ lib.addCommand('unstackkeys', {
     params = {},
 }, function(source)
     local src = source
-    local bag = Bridge:GetPlayerItemsByName(src, 'keybag')
+    local bag = Bridge:GetPlayerItemByName(src, 'keybag')
     if not bag then
         local ndata = {
-            description = 'You don\'t have a key bag',
+            description = 'Você não tem uma bolsa de chave',
             type = 'error'
         }
         TriggerClientEvent('ox_lib:notify', src, ndata)

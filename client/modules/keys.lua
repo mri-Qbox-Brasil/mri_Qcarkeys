@@ -12,10 +12,10 @@ function KeyManagement:SetVehicleKeys()
     if not PlayerItems then return end
     for _, item in pairs(PlayerItems) do
         local itemInfo = self.getItemInfo(item)
-        if itemInfo and item.name == "vehiclekey" then
+        if itemInfo and item.name == "vehiclekey" and itemInfo.plate then
             VehicleKeys.playerKeys[#VehicleKeys.playerKeys+1] = Utils:RemoveSpecialCharacter(itemInfo.plate)
         elseif itemInfo and item.name == "keybag" then
-            for _,v in pairs(itemInfo.plates) do
+            for _,v in pairs(itemInfo.plates or {}) do
                 VehicleKeys.playerKeys[#VehicleKeys.playerKeys+1] = Utils:RemoveSpecialCharacter(v.plate)
             end
         end

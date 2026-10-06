@@ -43,11 +43,25 @@ end
 
 function Bridge:AddItem(src, item, info)
     if Shared.Inventory == 'ox' then
-        exports.ox_inventory:AddItem(src, item, 1, info)
+        return exports.ox_inventory:AddItem(src, item, 1, info)
     elseif Shared.Inventory == 'qb' then
         local Player = self:GetPlayer(src)
-        Player.Functions.AddItem(item, 1, false, info)
-        TriggerClientEvent("inventory:client:ItemBox", src, QBCore.Shared.Items[item], "add")
+        local success = Player.Functions.AddItem(item, 1, false, info)
+        if success then
+            TriggerClientEvent("inventory:client:ItemBox", src, QBCore.Shared.Items[item], "add")
+        end
+        return success
+    end
+end
+
+function Bridge:SetItemInfo(src, slot, info)
+    if Shared.Inventory == 'ox' then
+        exports.ox_inventory:SetMetadata(src, slot, info)
+    elseif Shared.Inventory == 'qb' then
+        local Player = self:GetPlayer(src)
+        local items = Player.PlayerData.items
+        items[slot].info = info
+        Player.Functions.SetPlayerData('items', items)
     end
 end
 

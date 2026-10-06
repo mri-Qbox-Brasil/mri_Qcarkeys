@@ -7,6 +7,17 @@ local function RemoveSpecialCharacter(txt)
     return (txt:gsub("%W", "")):upper()
 end
 
+local function getBagPlates(bag)
+    local info = getItemInfo(bag)
+    return info and info.plates or {}
+end
+
+local function buildBagInfo(plates)
+    local list = {}
+    for i = 1, #plates do list[i] = plates[i].plate end
+    return { plates = plates, platestxt = table.concat(list, ', ') }
+end
+
 function GiveTempKeys(id, plate)
     local citizenid = Bridge:GetPlayerCitizenId(id)
     if not VehicleList[citizenid] then VehicleList[citizenid] = {} end
@@ -151,46 +162,54 @@ end)
 
 RegisterNetEvent('mm_carkeys:server:removevehiclekeys', function(plate)
     local src = source
-    local keys = Bridge:GetPlayerItemsByName(src, 'vehiclekey')
-    for _, v in pairs(keys) do
+    if not plate then return end
+    plate = RemoveSpecialCharacter(plate)
+    for _, v in pairs(Bridge:GetPlayerItemsByName(src, 'vehiclekey') or {}) do
         local info = getItemInfo(v)
-        if info.plate == plate then
+        if info.plate and RemoveSpecialCharacter(info.plate) == plate then
             Bridge:RemoveItem(src, 'vehiclekey', v.slot)
-            break
+            return
+        end
+    end
+    for _, bag in pairs(Bridge:GetPlayerItemsByName(src, 'keybag') or {}) do
+        local plates = getBagPlates(bag)
+        for i = 1, #plates do
+            if plates[i].plate and RemoveSpecialCharacter(plates[i].plate) == plate then
+                table.remove(plates, i)
+                Bridge:SetItemInfo(src, bag.slot, buildBagInfo(plates))
+                return
+            end
         end
     end
 end)
 
 RegisterNetEvent('mm_carkeys:server:stackkeys', function()
     local src = source
-    local bagFound = Bridge:GetPlayerItemByName(src, 'keybag')
-    local keys = Bridge:GetPlayerItemsByName(src, 'vehiclekey')
-    local plates = {}
-    local platestxt = ''
-    for _, v in pairs(keys) do
+    local plates, seen, removed = {}, {}, 0
+    local function addPlate(plate, label)
+        local key = RemoveSpecialCharacter(plate)
+        if seen[key] then return end
+        seen[key] = true
+        plates[#plates+1] = { plate = plate, label = label }
+    end
+    for _, bag in pairs(Bridge:GetPlayerItemsByName(src, 'keybag') or {}) do
+        for _, v in pairs(getBagPlates(bag)) do
+            if v.plate then addPlate(v.plate, v.label) end
+        end
+        Bridge:RemoveItem(src, 'keybag', bag.slot)
+        removed = removed + 1
+    end
+    for _, v in pairs(Bridge:GetPlayerItemsByName(src, 'vehiclekey') or {}) do
         local info = getItemInfo(v)
         if info.plate then
-            plates[#plates+1] = {
-                plate = info.plate,
-                label = info.label
-            }
-            platestxt = platestxt..info.plate..', '
+            addPlate(info.plate, info.label)
             Bridge:RemoveItem(src, 'vehiclekey', v.slot)
+            removed = removed + 1
         end
     end
-    if bagFound then
-        local info = getItemInfo(bagFound)
-        local getplates = info.plates
-        for _, v in pairs(getplates) do
-            plates[#plates+1] = {
-                plate = v.plate,
-                label = v.label
-            }
-            platestxt = platestxt..v.plate..', '
-        end
-        Bridge:RemoveItem(src, 'keybag', bagFound.slot)
-    end
-    Bridge:AddItem(src, 'keybag', {plates = plates, platestxt = platestxt})
+    -- keybag weighs the same as a key, so after any removal it always fits
+    if removed == 0 then return end
+    Bridge:AddItem(src, 'keybag', buildBagInfo(plates))
 end)
 
 RegisterNetEvent('mm_carkeys:server:unstackkeys', function()
@@ -204,14 +223,21 @@ RegisterNetEvent('mm_carkeys:server:unstackkeys', function()
         TriggerClientEvent('ox_lib:notify', src, ndata)
         return
     end
-    Bridge:RemoveItem(src, 'keybag', bag.slot)
-    local itemInfo = getItemInfo(bag)
-    for _, v in pairs(itemInfo.plates) do
-        local info = {}
-		info.label = v.label
-        info.plate = v.plate
-        Bridge:AddItem(src, 'vehiclekey', info)
+    local left = {}
+    for _, v in ipairs(getBagPlates(bag)) do
+        if v.plate and not Bridge:AddItem(src, 'vehiclekey', { label = v.label, plate = v.plate }) then
+            left[#left+1] = v
+        end
     end
+    if #left == 0 then
+        Bridge:RemoveItem(src, 'keybag', bag.slot)
+        return
+    end
+    Bridge:SetItemInfo(src, bag.slot, buildBagInfo(left))
+    TriggerClientEvent('ox_lib:notify', src, {
+        description = ('Sem espaço para %d chave(s), elas continuam na bolsa'):format(#left),
+        type = 'error'
+    })
 end)
 
 -- lib.versionCheck('SOH69/mm_carkeys')
