@@ -212,10 +212,10 @@ RegisterNetEvent('mm_carkeys:server:stackkeys', function()
     Bridge:AddItem(src, 'keybag', buildBagInfo(plates))
 end)
 
-RegisterNetEvent('mm_carkeys:server:unstackkeys', function()
+RegisterNetEvent('mm_carkeys:server:unstackkeys', function(slot)
     local src = source
-    local bag = Bridge:GetPlayerItemByName(src, 'keybag')
-    if not bag then
+    local bag = type(slot) == 'number' and Bridge:GetItemBySlot(src, slot) or Bridge:GetPlayerItemByName(src, 'keybag')
+    if not bag or bag.name ~= 'keybag' then
         local ndata = {
             description = 'Você não tem uma bolsa de chave',
             type = 'error'

@@ -9,7 +9,7 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
 - 🔧 **Hotwiring** — Minigame de ligação direta com chance escalada por nível de reputação.
 - 🪛 **Lockpick de porta e motor** — Suporte a ox_lib skill check ou minigame alternativo.
 - 🚗 **Carjacking** — Roubo de veículos de NPCs com chance baseada na arma utilizada.
-- 📦 **Key stacking** — Consolidar todas as chaves em um único `keybag`.
+- 📦 **Bolsa de chaves**: botão direito numa chave do inventário junta todas num único `keybag`.
 - 🎒 **Key grabbing** — Pegar chaves de NPCs vivos ou mortos em veículos.
 - 🌐 **Multi-framework** — Compatível com QBCore, QBX, ESX e ox_core.
 - 📦 **Multi-inventory** — Compatível com ox_inventory, qb-inventory, ps-inventory, mm_inventory, qs-inventory.
@@ -84,8 +84,6 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
 | `/removetempkeys [target] [plate]` | `group.admin` | Remover chaves temporárias. |
 | `/givekeys` | police/cardealer/admin | Dar chave permanente do veículo atual. |
 | `/removekeys` | police/cardealer/admin | Remover chave permanente do veículo atual. |
-| `/stackkeys` | Não | Consolidar todas as chaves em um keybag. |
-| `/unstackkeys` | Não | Separar keybag em chaves individuais. |
 
 ## Exports
 
@@ -99,6 +97,8 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
 | `RemoveKeyItem` | `(plate)` | Remover item de chave permanente. |
 | `HaveTemporaryKey` | `(plate)` | Retorna `boolean`. |
 | `HavePermanentKey` | `(plate)` | Retorna `boolean`. |
+| `StackKeys` | `()` | Juntar todas as chaves num keybag (botão do inventário). |
+| `UnstackKeys` | `(slot)` | Separar o keybag do slot em chaves individuais (botão do inventário). |
 
 ### Server
 
@@ -144,6 +144,8 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
     description = 'Gazuas avançadas com menor chance de quebrar',
 },
 ```
+
+No ox_inventory, `vehiclekey` e `keybag` levam os botões de juntar e separar chaves no `data/items.lua` (ver a seção "Bolsa de chaves" do [MANUAL](MANUAL.md)).
 
 ## Dependências
 
@@ -204,7 +206,7 @@ mri_Qcarkeys/
 | `mm_carkeys:server:acquirevehiclekeys` | Requisitar chave permanente. |
 | `mm_carkeys:server:removevehiclekeys` | Remover chave permanente. |
 | `mm_carkeys:server:stackkeys` | Stack de chaves em keybag. |
-| `mm_carkeys:server:unstackkeys` | Unstack keybag em chaves individuais. |
+| `mm_carkeys:server:unstackkeys` | Separar o keybag do slot informado em chaves individuais. |
 
 ### Server → Client
 
@@ -215,8 +217,6 @@ mri_Qcarkeys/
 | `mm_carkeys:client:setplayerkey` | Definir chave permanente. |
 | `mm_carkeys:client:removeplayerkey` | Remover chave permanente. |
 | `mm_carkeys:client:givekeyitem` | Progress bar de dar chave. |
-| `mm_carkeys:client:stackkeys` | Progress bar de stack. |
-| `mm_carkeys:client:unstackkeys` | Progress bar de unstack. |
 
 ## Observações importantes ⚠️
 

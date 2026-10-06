@@ -93,6 +93,15 @@ function Bridge:GetPlayerItemByName(src, item)
     end
 end
 
+function Bridge:GetItemBySlot(src, slot)
+    if Shared.Inventory == 'ox' then
+        return exports.ox_inventory:GetSlot(src, slot)
+    elseif Shared.Inventory == 'qb' then
+        local Player = self:GetPlayer(src)
+        return Player.Functions.GetItemBySlot(slot)
+    end
+end
+
 function Bridge:RemovePlayerKeyItem(src, info)
     local items = self:GetPlayerItemsByName(src, 'vehiclekey')
     for _, v in pairs(items) do

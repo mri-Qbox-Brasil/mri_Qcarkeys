@@ -280,35 +280,17 @@ RegisterNetEvent('mm_carkeys:client:removekeyitem', function()
     TriggerServerEvent('mm_carkeys:server:removevehiclekeys', VehicleKeys.currentVehiclePlate)
 end)
 
-RegisterNetEvent('mm_carkeys:client:stackkeys', function()
-    if lib.progressBar({
-        label = 'Juntando as chaves...',
-        duration = 5000,
-        position = 'bottom',
-        useWhileDead = false,
-        canCancel = true,
-        anim = {
-            dict = 'anim@amb@business@weed@weed_inspecting_high_dry@',
-            clip = 'weed_inspecting_high_base_inspector'
-        },
-        disable = {
-            car = true,
-            move = true,
-            combat = true
-        }
-    }) then
-        TriggerServerEvent('mm_carkeys:server:stackkeys')
-    else
-        lib.notify({
-            description = 'Ação cancelada',
-            type = 'error'
-        })
+local function countPlayerItems(name)
+    local count = 0
+    for _, item in pairs(InventoryBridge:GetPlayerItems() or {}) do
+        if item.name == name then count = count + 1 end
     end
-end)
+    return count
+end
 
-RegisterNetEvent('mm_carkeys:client:unstackkeys', function()
-    if lib.progressBar({
-        label = 'Separando as chaves...',
+local function keyBagProgress(label)
+    local done = lib.progressBar({
+        label = label,
         duration = 5000,
         position = 'bottom',
         useWhileDead = false,
@@ -322,14 +304,46 @@ RegisterNetEvent('mm_carkeys:client:unstackkeys', function()
             move = true,
             combat = true
         }
-    }) then
-        TriggerServerEvent('mm_carkeys:server:unstackkeys')
-    else
+    })
+    if not done then
         lib.notify({
             description = 'Ação cancelada',
             type = 'error'
         })
     end
+    return done
+end
+
+function KeyManagement:StackKeys()
+    if countPlayerItems('vehiclekey') == 0 and countPlayerItems('keybag') < 2 then
+        return lib.notify({
+            description = 'Você não tem chaves para juntar',
+            type = 'error'
+        })
+    end
+    if keyBagProgress('Juntando as chaves...') then
+        TriggerServerEvent('mm_carkeys:server:stackkeys')
+    end
+end
+
+function KeyManagement:UnstackKeys(slot)
+    if countPlayerItems('keybag') == 0 then
+        return lib.notify({
+            description = 'Você não tem uma bolsa de chave',
+            type = 'error'
+        })
+    end
+    if keyBagProgress('Separando as chaves...') then
+        TriggerServerEvent('mm_carkeys:server:unstackkeys', slot)
+    end
+end
+
+-- own thread so the inventory button callback is not held by the progress bar
+exports('StackKeys', function()
+    CreateThread(function() KeyManagement:StackKeys() end)
+end)
+exports('UnstackKeys', function(slot)
+    CreateThread(function() KeyManagement:UnstackKeys(slot) end)
 end)
 
 return KeyManagement

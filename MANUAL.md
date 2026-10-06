@@ -63,6 +63,30 @@ O recurso não cria itens; ele espera que estes nomes existam no seu inventário
 
 O item de lockpick precisa disparar o evento client `lockpicks:UseLockpick(isAdvanced)` quando usado — é assim que o minigame é iniciado.
 
+### Bolsa de chaves
+
+Juntar e separar as chaves é feito pelo botão direito no inventário. No ox_inventory, os botões ficam no `data/items.lua` e chamam os exports do recurso:
+
+```lua
+['vehiclekey'] = {
+    -- ...
+    buttons = {
+        { label = 'Juntar chaves', action = function() client.closeInventory() exports.mri_Qcarkeys:StackKeys() end },
+    },
+},
+['keybag'] = {
+    -- ...
+    buttons = {
+        { label = 'Separar chaves', action = function(slot) client.closeInventory() exports.mri_Qcarkeys:UnstackKeys(slot) end },
+        { label = 'Juntar chaves', action = function() client.closeInventory() exports.mri_Qcarkeys:StackKeys() end },
+    },
+},
+```
+
+- **Juntar chaves** junta todas as `vehiclekey` e todos os `keybag` do inventário num único `keybag`, sem repetir placa.
+- **Separar chaves** devolve uma `vehiclekey` por placa do `keybag` clicado. As que não couberem no inventário continuam na bolsa.
+- Ao ligar o motor com `keepKeysInVehicle`, a chave sai da bolsa e volta como `vehiclekey` solta ao desligar.
+
 ---
 
 ## Permissões (ACE)
@@ -126,8 +150,6 @@ Arquivo: `shared/shared.lua`.
 | `/removetempkeys [target] [plate]` | ACE `command.removetempkeys` | Remove a chave temporária. Mesmos defaults do comando acima |
 | `/givekeys` | Job `police`, job `cardealer` ou ACE `admin` | Abre uma progressBar de 5 s e entrega o item `vehiclekey` do veículo em que o jogador está |
 | `/removekeys` | Job `police`, job `cardealer` ou ACE `admin` | Remove o item `vehiclekey` do veículo em que o jogador está |
-| `/stackkeys` | Todos | Junta todos os `vehiclekey` do inventário em um `keybag` |
-| `/unstackkeys` | Todos | Desfaz o `keybag`, devolvendo um `vehiclekey` por placa |
 
 ---
 
@@ -197,6 +219,8 @@ exports.mri_Qcarkeys:GiveKeyItem(plate)
 exports.mri_Qcarkeys:RemoveKeyItem(plate)
 exports.mri_Qcarkeys:HaveTemporaryKey(plate)   --> boolean
 exports.mri_Qcarkeys:HavePermanentKey(plate)   --> boolean
+exports.mri_Qcarkeys:StackKeys()               -- progressBar + junta as chaves num keybag
+exports.mri_Qcarkeys:UnstackKeys(slot)         -- progressBar + separa o keybag do slot
 ```
 
 ### Eventos de servidor
@@ -208,7 +232,7 @@ TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', plate)
 TriggerServerEvent('mm_carkeys:server:removetempvehiclekeys', plate)
 TriggerServerEvent('mm_carkeys:server:setVehLockState', vehNetId, state) -- state: 1 destrancado, 2 trancado
 TriggerServerEvent('mm_carkeys:server:stackkeys')
-TriggerServerEvent('mm_carkeys:server:unstackkeys')
+TriggerServerEvent('mm_carkeys:server:unstackkeys', slot)  -- slot do keybag; sem slot, usa o primeiro
 TriggerServerEvent('mm_carkeys:server:removelockpick', 'lockpick')
 ```
 
@@ -221,8 +245,6 @@ TriggerClientEvent('mm_carkeys:client:setplayerkey', src, plate, netId)
 TriggerClientEvent('mm_carkeys:client:removeplayerkey', src, plate)
 TriggerClientEvent('mm_carkeys:client:givekeyitem', src)   -- progressBar + entrega a chave do veículo atual
 TriggerClientEvent('mm_carkeys:client:removekeyitem', src)
-TriggerClientEvent('mm_carkeys:client:stackkeys', src)
-TriggerClientEvent('mm_carkeys:client:unstackkeys', src)
 
 TriggerEvent('lockpicks:UseLockpick', isAdvanced)  -- client; dispare no "use" do item de lockpick
 ```

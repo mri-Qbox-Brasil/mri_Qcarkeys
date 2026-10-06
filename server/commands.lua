@@ -101,37 +101,3 @@ lib.addCommand('removekeys', {
 	}
     TriggerClientEvent('ox_lib:notify', source, ndata)
 end)
-
-lib.addCommand('stackkeys', {
-    help = 'Stack Permanent Keys',
-    params = {},
-}, function(source)
-    local src = source
-    local keys = Bridge:GetPlayerItemsByName(src, 'vehiclekey')
-    if not keys or not next(keys) then
-        local ndata = {
-            description = 'Você não tem nenhuma chave',
-            type = 'error'
-        }
-        TriggerClientEvent('ox_lib:notify', src, ndata)
-        return
-    end
-    TriggerClientEvent('mm_carkeys:client:stackkeys', src)
-end)
-
-lib.addCommand('unstackkeys', {
-    help = 'Unstack Permanent Keys',
-    params = {},
-}, function(source)
-    local src = source
-    local bag = Bridge:GetPlayerItemByName(src, 'keybag')
-    if not bag then
-        local ndata = {
-            description = 'Você não tem uma bolsa de chave',
-            type = 'error'
-        }
-        TriggerClientEvent('ox_lib:notify', src, ndata)
-        return
-    end
-    TriggerClientEvent('mm_carkeys:client:unstackkeys', src)
-end)
