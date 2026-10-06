@@ -9,7 +9,7 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
 - 🔧 **Hotwiring** — Minigame de ligação direta com chance escalada por nível de reputação.
 - 🪛 **Lockpick de porta e motor** — Suporte a ox_lib skill check ou minigame alternativo.
 - 🚗 **Carjacking** — Roubo de veículos de NPCs com chance baseada na arma utilizada.
-- 📦 **Bolsa de chaves**: botão direito numa chave do inventário junta todas num único `keybag`.
+- 📦 **Bolsa de chaves**: o `keybag` é um container do ox_inventory que guarda as chaves, com botão direito para guardar as soltas.
 - 🎒 **Key grabbing** — Pegar chaves de NPCs vivos ou mortos em veículos.
 - 🌐 **Multi-framework** — Compatível com QBCore, QBX, ESX e ox_core.
 - 📦 **Multi-inventory** — Compatível com ox_inventory, qb-inventory, ps-inventory, mm_inventory, qs-inventory.
@@ -97,8 +97,7 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
 | `RemoveKeyItem` | `(plate)` | Remover item de chave permanente. |
 | `HaveTemporaryKey` | `(plate)` | Retorna `boolean`. |
 | `HavePermanentKey` | `(plate)` | Retorna `boolean`. |
-| `StackKeys` | `()` | Juntar todas as chaves num keybag (botão do inventário). |
-| `UnstackKeys` | `(slot)` | Separar o keybag do slot em chaves individuais (botão do inventário). |
+| `StackKeys` | `(bagSlot?)` | Guardar as chaves soltas na bolsa (botão do inventário). |
 
 ### Server
 
@@ -145,7 +144,7 @@ Sistema completo de gerenciamento de chaves veiculares para FiveM com chaves per
 },
 ```
 
-No ox_inventory, `vehiclekey` e `keybag` levam os botões de juntar e separar chaves no `data/items.lua` (ver a seção "Bolsa de chaves" do [MANUAL](MANUAL.md)).
+No ox_inventory, `vehiclekey` e `keybag` levam os botões de guardar chaves no `data/items.lua` (ver a seção "Bolsa de chaves" do [MANUAL](MANUAL.md)).
 
 ## Dependências
 
@@ -186,7 +185,8 @@ mri_Qcarkeys/
 ├── server/
 │   ├── bridge.lua               # Abstração framework/inventory
 │   ├── commands.lua             # Comandos admin/player
-│   └── server.lua               # Lógica principal: distribuição, stacking
+│   ├── keybag.lua               # Bolsa de chaves (container do ox_inventory)
+│   └── server.lua               # Lógica principal: distribuição de chaves
 ├── shared/
 │   ├── init.lua                 # Auto-detecção de framework e inventory
 │   └── shared.lua               # Configurações
@@ -205,8 +205,7 @@ mri_Qcarkeys/
 | `mm_carkeys:server:removetempvehiclekeys` | Remover chaves temporárias. |
 | `mm_carkeys:server:acquirevehiclekeys` | Requisitar chave permanente. |
 | `mm_carkeys:server:removevehiclekeys` | Remover chave permanente. |
-| `mm_carkeys:server:stackkeys` | Stack de chaves em keybag. |
-| `mm_carkeys:server:unstackkeys` | Separar o keybag do slot informado em chaves individuais. |
+| `mm_carkeys:server:stackkeys` | Guardar as chaves soltas na bolsa. |
 
 ### Server → Client
 
@@ -221,7 +220,7 @@ mri_Qcarkeys/
 ## Observações importantes ⚠️
 
 - Quando `keepKeysInVehicle = true`, o veículo verifica o entity state `keysIn` antes de permitir ligar o motor. Desligar o motor consome a chave permanente e concede temporária.
-- O stacking converte todos os itens `vehiclekey` em um único `keybag` com metadata de placas.
+- Com o ox_inventory, o `keybag` é um container registrado pelo próprio recurso; as placas guardadas ficam espelhadas no metadata da bolsa.
 - A chance de hotwiring é escalada pelo nível de reputação no `cw-rep` (níveis 1-8).
 - Carjacking tem cooldown de 5 segundos entre tentativas.
 - NPCs ocupantes fogem quando um carjacking é bem-sucedido.

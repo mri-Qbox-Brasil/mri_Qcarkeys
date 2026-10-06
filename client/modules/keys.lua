@@ -15,8 +15,10 @@ function KeyManagement:SetVehicleKeys()
         if itemInfo and item.name == "vehiclekey" and itemInfo.plate then
             VehicleKeys.playerKeys[#VehicleKeys.playerKeys+1] = Utils:RemoveSpecialCharacter(itemInfo.plate)
         elseif itemInfo and item.name == "keybag" then
-            for _,v in pairs(itemInfo.plates or {}) do
-                VehicleKeys.playerKeys[#VehicleKeys.playerKeys+1] = Utils:RemoveSpecialCharacter(v.plate)
+            for _, plate in pairs(itemInfo.plates or {}) do
+                if type(plate) == 'string' then
+                    VehicleKeys.playerKeys[#VehicleKeys.playerKeys+1] = Utils:RemoveSpecialCharacter(plate)
+                end
             end
         end
     end
@@ -280,17 +282,19 @@ RegisterNetEvent('mm_carkeys:client:removekeyitem', function()
     TriggerServerEvent('mm_carkeys:server:removevehiclekeys', VehicleKeys.currentVehiclePlate)
 end)
 
-local function countPlayerItems(name)
-    local count = 0
+function KeyManagement:StackKeys(bagSlot)
+    local hasLooseKey = false
     for _, item in pairs(InventoryBridge:GetPlayerItems() or {}) do
-        if item.name == name then count = count + 1 end
+        if item.name == 'vehiclekey' then hasLooseKey = true break end
     end
-    return count
-end
-
-local function keyBagProgress(label)
-    local done = lib.progressBar({
-        label = label,
+    if not hasLooseKey then
+        return lib.notify({
+            description = 'Você não tem chaves soltas para guardar',
+            type = 'error'
+        })
+    end
+    if lib.progressBar({
+        label = 'Guardando as chaves...',
         duration = 5000,
         position = 'bottom',
         useWhileDead = false,
@@ -304,46 +308,19 @@ local function keyBagProgress(label)
             move = true,
             combat = true
         }
-    })
-    if not done then
+    }) then
+        TriggerServerEvent('mm_carkeys:server:stackkeys', bagSlot)
+    else
         lib.notify({
             description = 'Ação cancelada',
             type = 'error'
         })
     end
-    return done
-end
-
-function KeyManagement:StackKeys()
-    if countPlayerItems('vehiclekey') == 0 and countPlayerItems('keybag') < 2 then
-        return lib.notify({
-            description = 'Você não tem chaves para juntar',
-            type = 'error'
-        })
-    end
-    if keyBagProgress('Juntando as chaves...') then
-        TriggerServerEvent('mm_carkeys:server:stackkeys')
-    end
-end
-
-function KeyManagement:UnstackKeys(slot)
-    if countPlayerItems('keybag') == 0 then
-        return lib.notify({
-            description = 'Você não tem uma bolsa de chave',
-            type = 'error'
-        })
-    end
-    if keyBagProgress('Separando as chaves...') then
-        TriggerServerEvent('mm_carkeys:server:unstackkeys', slot)
-    end
 end
 
 -- own thread so the inventory button callback is not held by the progress bar
-exports('StackKeys', function()
-    CreateThread(function() KeyManagement:StackKeys() end)
-end)
-exports('UnstackKeys', function(slot)
-    CreateThread(function() KeyManagement:UnstackKeys(slot) end)
+exports('StackKeys', function(bagSlot)
+    CreateThread(function() KeyManagement:StackKeys(bagSlot) end)
 end)
 
 return KeyManagement

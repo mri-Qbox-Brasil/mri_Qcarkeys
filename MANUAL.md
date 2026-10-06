@@ -57,7 +57,7 @@ O recurso não cria itens; ele espera que estes nomes existam no seu inventário
 | Item | Uso | Metadata gravada pelo recurso |
 |---|---|---|
 | `vehiclekey` | Chave permanente de um veículo | `plate` (placa sem caracteres especiais, maiúscula) e `label` (`CHAVE-<placa>`) |
-| `keybag` | Chaveiro que consolida várias chaves | `plates` (lista de `{plate, label}`) e `platestxt` (placas concatenadas) |
+| `keybag` | Bolsa (container) que guarda várias chaves | `container` e `size` (do ox_inventory), `plates` (placas guardadas) e `description` |
 | `lockpick` | Consumido ao arrombar porta/ignição | — |
 | `advancedlockpick` | Igual ao `lockpick`, com chance de quebra menor | — |
 
@@ -65,26 +65,29 @@ O item de lockpick precisa disparar o evento client `lockpicks:UseLockpick(isAdv
 
 ### Bolsa de chaves
 
-Juntar e separar as chaves é feito pelo botão direito no inventário. No ox_inventory, os botões ficam no `data/items.lua` e chamam os exports do recurso:
+Com o ox_inventory, o `keybag` é um container: usar a bolsa abre um painel onde só entram `vehiclekey` (20 slots). O recurso registra o container e um hook de `swapItems` sozinho, sem mexer no ox_inventory, e repete o registro quando o ox_inventory reinicia. As chaves dentro da bolsa contam como chave permanente.
+
+Quando uma chave entra ou sai da bolsa, o recurso grava as placas no metadata do `keybag` (`plates` e `description`), então a bolsa leva as chaves junto se mudar de dono. Com outro inventário (qb e derivados), a bolsa não tem função.
+
+Os botões de botão direito ficam no `data/items.lua` do ox_inventory e chamam o export do recurso:
 
 ```lua
 ['vehiclekey'] = {
     -- ...
     buttons = {
-        { label = 'Juntar chaves', action = function() client.closeInventory() exports.mri_Qcarkeys:StackKeys() end },
+        { label = 'Guardar na bolsa', action = function() client.closeInventory() exports.mri_Qcarkeys:StackKeys() end },
     },
 },
 ['keybag'] = {
     -- ...
     buttons = {
-        { label = 'Separar chaves', action = function(slot) client.closeInventory() exports.mri_Qcarkeys:UnstackKeys(slot) end },
-        { label = 'Juntar chaves', action = function() client.closeInventory() exports.mri_Qcarkeys:StackKeys() end },
+        { label = 'Guardar chaves soltas', action = function(slot) client.closeInventory() exports.mri_Qcarkeys:StackKeys(slot) end },
     },
 },
 ```
 
-- **Juntar chaves** junta todas as `vehiclekey` e todos os `keybag` do inventário num único `keybag`, sem repetir placa.
-- **Separar chaves** devolve uma `vehiclekey` por placa do `keybag` clicado. As que não couberem no inventário continuam na bolsa.
+- **Guardar na bolsa / Guardar chaves soltas** coloca todas as `vehiclekey` soltas dentro da bolsa (a clicada, ou a primeira; sem bolsa, cria uma). As que não couberem ficam de fora.
+- Para tirar uma chave, abra a bolsa e arraste.
 - Ao ligar o motor com `keepKeysInVehicle`, a chave sai da bolsa e volta como `vehiclekey` solta ao desligar.
 
 ---
@@ -219,8 +222,7 @@ exports.mri_Qcarkeys:GiveKeyItem(plate)
 exports.mri_Qcarkeys:RemoveKeyItem(plate)
 exports.mri_Qcarkeys:HaveTemporaryKey(plate)   --> boolean
 exports.mri_Qcarkeys:HavePermanentKey(plate)   --> boolean
-exports.mri_Qcarkeys:StackKeys()               -- progressBar + junta as chaves num keybag
-exports.mri_Qcarkeys:UnstackKeys(slot)         -- progressBar + separa o keybag do slot
+exports.mri_Qcarkeys:StackKeys(bagSlot)        -- progressBar + guarda as chaves soltas na bolsa (bagSlot opcional)
 ```
 
 ### Eventos de servidor
@@ -231,8 +233,7 @@ TriggerServerEvent('mm_carkeys:server:removevehiclekeys', plate)      -- remove 
 TriggerServerEvent('mm_carkeys:server:acquiretempvehiclekeys', plate)
 TriggerServerEvent('mm_carkeys:server:removetempvehiclekeys', plate)
 TriggerServerEvent('mm_carkeys:server:setVehLockState', vehNetId, state) -- state: 1 destrancado, 2 trancado
-TriggerServerEvent('mm_carkeys:server:stackkeys')
-TriggerServerEvent('mm_carkeys:server:unstackkeys', slot)  -- slot do keybag; sem slot, usa o primeiro
+TriggerServerEvent('mm_carkeys:server:stackkeys', bagSlot)  -- guarda as chaves soltas na bolsa (ox_inventory)
 TriggerServerEvent('mm_carkeys:server:removelockpick', 'lockpick')
 ```
 
@@ -295,6 +296,7 @@ mri_Qcarkeys/
 ├── server/
 │   ├── server.lua        — chaves temporárias em memória, itens, exports e eventos
 │   ├── commands.lua      — comandos de chave
+│   ├── keybag.lua        — bolsa de chaves como container do ox_inventory (container, hook e placas)
 │   └── bridge.lua        — bridge de framework e inventário (server)
 └── fxmanifest.lua
 ```

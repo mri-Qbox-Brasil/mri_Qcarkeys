@@ -54,16 +54,6 @@ function Bridge:AddItem(src, item, info)
     end
 end
 
-function Bridge:SetItemInfo(src, slot, info)
-    if Shared.Inventory == 'ox' then
-        exports.ox_inventory:SetMetadata(src, slot, info)
-    elseif Shared.Inventory == 'qb' then
-        local Player = self:GetPlayer(src)
-        local items = Player.PlayerData.items
-        items[slot].info = info
-        Player.Functions.SetPlayerData('items', items)
-    end
-end
 
 function Bridge:RemoveItem(src, item, slot)
     if Shared.Inventory == 'ox' then
@@ -90,15 +80,6 @@ function Bridge:GetPlayerItemByName(src, item)
     elseif Shared.Inventory == 'qb' then
         local Player = self:GetPlayer(src)
         return Player.Functions.GetItemByName(item)
-    end
-end
-
-function Bridge:GetItemBySlot(src, slot)
-    if Shared.Inventory == 'ox' then
-        return exports.ox_inventory:GetSlot(src, slot)
-    elseif Shared.Inventory == 'qb' then
-        local Player = self:GetPlayer(src)
-        return Player.Functions.GetItemBySlot(slot)
     end
 end
 
